@@ -13,7 +13,7 @@ vec2 getTransmittanceUvFromRMu(int aT_W, int aT_H, float aRg, float aRt, float r
 	//Distance to horizon from top atmosphere boundary
 	float H = sqrt(aRt * aRt - aRg * aRg);
 	//Rho - distance to horizon from current r
-	float rho = sqrt(r * r - aRg * aRg);
+	float rho = sqrt(r * r - aRg * aRg);/////////////////BUGGED when r == Rg true
 	//Both quadratic equation solution of sphere intersection and geometrically calculated distance from point at r to the atmosphere boundary along the ray
 	float d = -r * mu + sqrt(r * r * mu * mu - r * r + aRt * aRt);
 	//Minimum distance to atmosphere boundary
@@ -30,6 +30,7 @@ vec2 getTransmittanceUvFromRMu(int aT_W, int aT_H, float aRg, float aRt, float r
 	float u = 0.5 / aT_W + aU * (1.0 - 1.0 / aT_W);
 	float v = 0.5 / aT_H + aV * (1.0 - 1.0 / aT_H);
 	return vec2(u, v);
+	//return vec2(u, r);
 }
 
 //Assumes ray does not intersect ground, otherwise undefined (probably returns clamped values)
@@ -73,14 +74,15 @@ vec3 getTransmittance(int aT_W, int aT_H, float aRg, float aRt, sampler2D aTrans
 	if (intersectsGround)
 	{
 		vec3 transmittanceFromR0ToTopAtmosphereBoundary = getTransmittanceToTopAtmosphereBoundary(aT_W, aT_H, aRg, aRt, aTransmittanceTex, r0Clamped, -mu0);
-		//vec3 transmittanceFromaRtoTopAtmosphereBoundary = getTransmittanceToTopAtmosphereBoundary(aT_W, aT_H, aRg, aRt, aTransmittanceTex, r, -mu);
+		vec3 transmittanceFromaRtoTopAtmosphereBoundary = getTransmittanceToTopAtmosphereBoundary(aT_W, aT_H, aRg, aRt, aTransmittanceTex, r, -mu);
 		
 
 		//if (test!=r0Clamped)
 		//	return vec3(1.0, 0.0, 0.0);
 		//else
 		//	return vec3(0.0, 1.0, 0.0);
-		return min(transmittanceFromR0ToTopAtmosphereBoundary , vec3(1.0));
+		return min(transmittanceFromR0ToTopAtmosphereBoundary / transmittanceFromaRtoTopAtmosphereBoundary, vec3(1.0));
+		//return transmittanceFromR0ToTopAtmosphereBoundary;
 	}
 	else
 	{

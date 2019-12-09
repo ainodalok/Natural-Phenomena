@@ -150,6 +150,15 @@ QuadRenderer::QuadRenderer()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, NULL);
 
+	//Setup planet render shader
+	planetShader = new Shader("./Shaders/planet.glsl");
+	planetShader->use();
+
+	//Setup precompute shaders
+	transmittanceShader = new Shader("./Shaders/precomputeVS.glsl", "null", "./Shaders/transmittanceFS.glsl");
+	
+	precompute();
+	/*
 	glActiveTexture(GL_TEXTURE0 + COUNT);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -161,15 +170,7 @@ QuadRenderer::QuadRenderer()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 1616, 1147, 0, GL_RGB, GL_FLOAT, NULL);
 	glGenFramebuffers(1, &debFBO);
-
-	//Setup planet render shader
-	planetShader = new Shader("./Shaders/planet.glsl");
-	planetShader->use();
-
-	//Setup precompute shaders
-	transmittanceShader = new Shader("./Shaders/precomputeVS.glsl", "null", "./Shaders/transmittanceFS.glsl");
-	
-	precompute();
+	*/
 }
 
 QuadRenderer::~QuadRenderer()
@@ -220,17 +221,8 @@ void QuadRenderer::precomputeT()
 
 void QuadRenderer::renderAtmosphere()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, debFBO);
-	GLuint bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, bufs);
-	
-
 	glBindVertexArray(quadVAO);
 	glDepthFunc(GL_LEQUAL);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, debTEX, 0);
-	glViewport(0, 0, 1616, 1147);
-
 	planetShader->use();
 	glUniform1f(0, atmosphere->Rg);
 	glUniform1f(1, atmosphere->Rt);
@@ -238,10 +230,18 @@ void QuadRenderer::renderAtmosphere()
 	glUniform1i(3, T_H);
 	glUniform1f(4, atmosphere->sunAngularRadius);
 	glUniform3fv(5, 1, &(atmosphere->s[0]));
+	/*
+	glBindFramebuffer(GL_FRAMEBUFFER, debFBO);
+	GLuint bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, bufs);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, debTEX, 0);
+	glViewport(0, 0, 1616, 1147);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	glDepthFunc(GL_LESS);
+	*/
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glDepthFunc(GL_LESS);
 }
 
 //void QuadRenderer::clearTexture()

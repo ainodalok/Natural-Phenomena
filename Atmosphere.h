@@ -24,13 +24,13 @@ public:
 
 	//Precomputation variables initialized to earth values
 	QVector3D s = QVector3D(0.0f, 0.35f, 1.0f).normalized();
-	float Rg = 6360e3f; //6360e3f;
-	float Rt = 6360e3f * 6360e3f; //6420e3f;
+	float Rg = 6360e3f;
+	float Rt = 6420e3f;
 	float rH = 8000.0f;
 	float mH = 1200.0f;
 	QVector3D rBeta = QVector3D(5.8e-6f, 13.5e-6f, 33.1e-6f);
 	QVector3D mBeta = QVector3D(2.21e-5f, 2.21e-5f, 2.21e-5f);
-	QVector3D mBetaExt = mBeta / 0.9;
+	QVector3D mBetaExt = mBeta / 0.9f;
 	float g = 0.73f;
 	//float sunIntensity = 20.0f;
 	float sunAngularRadius = 0.0046251225f;

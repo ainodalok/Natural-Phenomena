@@ -69,7 +69,7 @@ private:
 
 	//Velocity vector
 	QVector3D velocity = QVector3D(0.0, 0.0, 0.0);
-	float speedModifier = 0.01;
+	float speedModifier = 0.01f;
 
 	//Mouse properties
 	float mouseX = 0;

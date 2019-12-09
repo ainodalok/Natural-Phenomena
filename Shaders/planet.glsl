@@ -67,10 +67,6 @@ void main()
 	}
 
 	//color = texture2D(transmittanceTex, coords);
-	float test1 = Rg * Rt;
-	float test2 = Rg + 10000;
-
-	color = vec4(Rg, Rt, Rg * Rg - Rt, 1.0);
 }
 
 #endif

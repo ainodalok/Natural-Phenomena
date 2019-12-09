@@ -118,7 +118,7 @@ void Shader::checkCompilerErrors(GLuint id, const char* type)
 {
 	int success;
 	char infoLog[1024];
-	if (type != "PROGRAM")
+	if (std::strcmp(type, "PROGRAM"))
 	{
 		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 		if (!success)
