@@ -1,27 +1,5 @@
 #include "Widget.h"
 
-#ifdef _WIN32 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#include <GL/glu.h>
-#include <GL/gl.h>
-#include <QOpenGLWidget>
-#include <Qt>
-#include <QTimer>
-#include <QKeyEvent>
-#include <QDebug>
-#include <QApplication>
-#include <math.h>
-#include <QVector3D>
-#include <QtWidgets>
-#include "QuadRenderer.h"
-
-
-//85 degrees fovx is typical for 16:9, which is most common aspect ratio
-#define FOV_X 90.0f
-
 //constructor
 Widget::Widget(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -38,7 +16,6 @@ Widget::Widget(QWidget *parent) : QOpenGLWidget(parent)
 	connect(timer, SIGNAL(timeout()), this, SLOT(timerFunction()));
 }
 
-// destructor deletes all glu objects
 Widget::~Widget()
 {
 	delete timer;
@@ -46,18 +23,12 @@ Widget::~Widget()
 	delete quadRenderer;
 }
 
-//returns current aspect ratio based on current window
-float Widget::aspectRatio()
-{
-	return float(width()) / float(height());
-}
-
 //called when OpenGL context is set up
 void Widget::initializeGL()
 {
 	initializeOpenGLFunctions();
 	//set the widget background colour
-	glClearColor(1.0, 0.0, 0.0, 0.0);
+	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 	//enable depth check
 	glEnable(GL_DEPTH_TEST);
 	//cull backfaces, we will never see the other side of polygon anyway
@@ -66,19 +37,17 @@ void Widget::initializeGL()
 	//if normals are >1.0, then rescale to 0.0-1.0 range, useful for dealing with normals like (1.0,1.0,1.0)
 	glEnable(GL_RESCALE_NORMAL);
 
-	//glEnable(GL_LIGHTING); // enable lighting in general
-	//glEnable(GL_LIGHT0);
-
-	quadRenderer = new QuadRenderer();
+	quadRenderer = new QuadRenderer(width(), height());	
 }
 
 //called every time the widget is resized
 void Widget::resizeGL(int w, int h)
 {
 	//Rebind all textures 
-	if (quadRenderer != NULL)
+	if (quadRenderer != nullptr)
 	{
 		quadRenderer->rebindPrecomputedTextures();
+		quadRenderer->rebuildFramebuffer(w, h);
 	}
 }
 
@@ -88,24 +57,6 @@ void Widget::paintGL()
 	//Time calculations
 	//Check time delta since last frame
 	dtime = dtimer->elapsed() - timeStamp;
-
-	//Initial rendering setup
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	//using frustum here calculated with formula for yfov from xfov, xfov is usually 90 degrees in 16:9 aspect ratio windows
-	//tan(FOV_X / 180 * M_PI*0.5)  = 1 if FOV_X = 90 degrees
-	gluPerspective(2.0 * atan(1.0f / aspectRatio()) / M_PI * 180,
-		aspectRatio(),
-		1.001,
-		500.0);
-	//clear the widget
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	//better to call here, because QT is known for making viewport calls, so it is possible that viewport function
-	//will be called between resizeGL() and paintGL() calls
-	glViewport(0, 0, width(), height());
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 	
 	//Time governing
 	if (dtime > 0)
@@ -126,57 +77,18 @@ void Widget::paintGL()
 				angleY = 360 + angleY;
 			QPoint cursorPos(width() / 2.0, height() / 2.0);
 			QCursor::setPos(mapToGlobal(cursorPos).x(), mapToGlobal(cursorPos).y());
-		
 			haveToY = 0;
 			haveToX = 0;
-
 			//Keyboard movement logic
 			camX += velocity.x() * dtime;
 			camY += velocity.y() * dtime;
 			camZ += velocity.z() * dtime;
 		}
-
 		//(quadRenderer->atmosphere)->updateS(dtime);
-
 		timeStamp = dtimer->elapsed();
 	}
 	
-
-	//Looking at z- with y+ vector up
-	gluLookAt(0., 0., 0.,
-		0.0, 0.0, -1.0,
-		0.0, 1.0, 0.0);
-
-	//Look into angle defs. for more info
-	//Increase in vertical angle turns camera up(while world goes down), since it is a ccw roation around X axis
-	glRotatef(-angleX, 1, 0, 0);
-	//Increase in horizontal angle turns camera right(while world goes left), since it is a ccw rotation around Y axis
-	glRotatef(angleY, 0, 1, 0);
-
-	//move camera to the location of controllable character
-	//Actually translates world, not camera position, hence negative values are passed as they represent actual camera location in the world without translations!
-	glTranslatef(-camX, -camY, -camZ);
-
-	//Call render functions here
-	//If window dimensions changed, reconstruct the texture
-	//quadRenderer->updateTexture(128, 80, angleX, angleY, FOV_X);
-	//quadRenderer->updateTexture(width()/10, height()/10, angleX, angleY, FOV_X);
-	
-	quadRenderer->renderAtmosphere();
-
-	//Testquad
-	glUseProgram(0);
-	glColor4f(0.0, 1, 1, 1);
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0.0f, 0.0f);   glVertex3f(-1, -1, -2.0f);
-	glTexCoord2f(1.0f, 0.0f);   glVertex3f(1, -1, -2.0f);
-	glTexCoord2f(1.0f, 1.0f);   glVertex3f(1, 1, -2.0f);
-	glTexCoord2f(0.0f, 1.0f);   glVertex3f(-1, 1, -2.0f);
-	glEnd();
-
-	//flush to screen
-	glFlush();
+	quadRenderer->renderAtmosphere(angleX, angleY, camX, camY, camZ);
 }
 
 //Enables or disables widget focus and its controls

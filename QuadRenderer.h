@@ -7,16 +7,23 @@
 #endif
 
 #include <GL/gl.h>
-#include <vector>
-#include <QVector2D>
+#include <GL/glu.h>
+#include <QtWidgets>
 #include <QVector3D>
+#include <QVector2D>
+#include <QDebug>
+#include <vector>
+#include <iostream>
 #include "Atmosphere.h"
 #include "Shader.h"
+
+//90 degrees fovx is typical for 16:9, which is most common aspect ratio
+#define FOV_X 90.0f
 
 class QuadRenderer : protected QOpenGLExtraFunctions
 {
 public:
-	QuadRenderer();
+	QuadRenderer(int width, int height);
 	~QuadRenderer();
 
 	enum Texture
@@ -33,31 +40,22 @@ public:
 
 	static constexpr Texture PrecomputedTextures[] = { T, E, S };
 
-	void renderAtmosphere();
-	//void updateTexture(int width, int height, float angleX, float angleY, float fovX);
-	//void clearTexture();
+	void renderAtmosphere(float angleX, float angleY, float camX, float camY, float camZ);
 	void rebindPrecomputedTextures();
-
-	//int width = 0;
-	//int height = 0;
+	void rebuildFramebuffer(int width, int height);
 
 	Atmosphere* atmosphere;
 	
 private:
+	float aspectRatio();
 	void precompute();
 	void precomputeT();
+	void drawTestQuad(float angleX, float angleY, float camX, float camY, float camZ);
 
-	
-	GLuint quadVAO;
-	GLuint quadVBO;
-	GLuint quadIBO;
-	std::vector<float> verticesAttributes;
-	std::vector<int> indices;
 	std::vector<GLuint> textureIDs;
-	//GLuint quadTextureId;
-	//GLubyte* data;
 	Shader* planetShader;
 	Shader* transmittanceShader;
+	Shader* screenShader;
 	
 	int TRANSMITTANCE_SAMPLES = 500;
 
@@ -70,7 +68,11 @@ private:
 	int MU_MU_S = 32;
 	int MU_NU = 8;
 
-	GLuint debFBO;
-	GLuint debTEX;
+	GLuint FBO = 0;
+	GLuint FBOtexture = 0;
+	GLuint RBO = 0;
+
+	int width = 0;
+	int height = 0;
 };
 #endif

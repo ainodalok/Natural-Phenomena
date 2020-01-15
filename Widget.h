@@ -6,10 +6,18 @@
 #include <windows.h>
 #endif
 
+#include <GL/gl.h>
+#include <Qt>
+#include <QApplication>
+#include <QtWidgets>
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
+#include <QTimer>
 #include <QElapsedTimer>
-#include <GL/gl.h>
+#include <QKeyEvent>
+#include <QVector3D>
+#include <QDebug>
+#include <math.h>
 #include "QuadRenderer.h"
 
 
@@ -33,8 +41,6 @@ protected:
 	void paintGL() override;
 
 private:
-	float aspectRatio();
-
 	virtual void keyPressEvent(QKeyEvent * event);
 	virtual void keyReleaseEvent(QKeyEvent * event);
 
@@ -87,10 +93,12 @@ private:
 	QElapsedTimer *dtimer;
 
 	//Effects to render
-	QuadRenderer* quadRenderer = NULL;
+	QuadRenderer* quadRenderer = nullptr;
 
 	//Data for old mouse position
 	QPoint oldPoint;
+
+	QOpenGLDebugLogger* logger = nullptr;
 
 private slots:
 	//Timer trigger

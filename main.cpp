@@ -12,15 +12,19 @@
 #include <QtDebug>
 #include <QResource>
 
+//RenderDoc Qt Environment Variable
+//PATH=H:\Apps\Qt\5.13.0\msvc2017_64\bin
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
-	QSurfaceFormat fmt;
-	fmt.setVersion(4, 6);
-	fmt.setProfile(QSurfaceFormat::CoreProfile);
-	fmt.setRenderableType(QSurfaceFormat::OpenGL);
-	QSurfaceFormat::setDefaultFormat(fmt);
+	QSurfaceFormat format;
+	format.setMajorVersion(4);
+	format.setMinorVersion(6);
+	//Might be faster on NVIDIA cards + test quad rendering using legacy OpenGL
+	format.setProfile(QSurfaceFormat::CompatibilityProfile);
+	format.setRenderableType(QSurfaceFormat::OpenGL);
+	QSurfaceFormat::setDefaultFormat(format);
 
 	//create the application
 	QApplication app(argc, argv);

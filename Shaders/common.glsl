@@ -7,6 +7,7 @@
 #define DELTA_E 4
 #define DELTA_SR 5
 #define DELTA_SM 6
+#define COUNT 7
 
 vec2 getTransmittanceUvFromRMu(int aT_W, int aT_H, float aRg, float aRt, float r, float mu) 
 {
@@ -30,7 +31,7 @@ vec2 getTransmittanceUvFromRMu(int aT_W, int aT_H, float aRg, float aRt, float r
 	float u = 0.5 / aT_W + aU * (1.0 - 1.0 / aT_W);
 	float v = 0.5 / aT_H + aV * (1.0 - 1.0 / aT_H);
 	return vec2(u, v);
-	//return vec2(u, r);
+	//return vec2(u, rho);
 }
 
 //Assumes ray does not intersect ground, otherwise undefined (probably returns clamped values)
@@ -49,6 +50,10 @@ vec3 getTransmittance(int aT_W, int aT_H, float aRg, float aRt, sampler2D aTrans
 	float r0 = sqrt(d * d + r * r - 2.0 * r * (-mu) * d);
 	//Clamp radius so that it would be bound by atmosphere boundaries
 	float r0Clamped = min(max(r0, aRg), aRt);
+	if (r0 > aRt)
+		r0Clamped = aRt;
+	if (r0 < aRg)
+		r0Clamped = aRg;
 	//Cosine law inversed for one of the adjacent sides adjacent to the angle of known cosine
 	if (r0Clamped != r0)
 	{
@@ -64,23 +69,11 @@ vec3 getTransmittance(int aT_W, int aT_H, float aRg, float aRt, sampler2D aTrans
 	//a, b - arbitrary points, t - point at top atmosphere boundary
 	//Tab = Tat / Tbt 
 	//min in case division by 0
-	//if mu ray intersects ground then reverse direction
-	//float test = r0;
-	//if (test>aRt)
-	//	test=aRt;
-	//if (test<aRg)
-	//	test=aRg;
-	
+	//if mu ray intersects ground then reverse direction	
 	if (intersectsGround)
 	{
 		vec3 transmittanceFromR0ToTopAtmosphereBoundary = getTransmittanceToTopAtmosphereBoundary(aT_W, aT_H, aRg, aRt, aTransmittanceTex, r0Clamped, -mu0);
 		vec3 transmittanceFromaRtoTopAtmosphereBoundary = getTransmittanceToTopAtmosphereBoundary(aT_W, aT_H, aRg, aRt, aTransmittanceTex, r, -mu);
-		
-
-		//if (test!=r0Clamped)
-		//	return vec3(1.0, 0.0, 0.0);
-		//else
-		//	return vec3(0.0, 1.0, 0.0);
 		return min(transmittanceFromR0ToTopAtmosphereBoundary / transmittanceFromaRtoTopAtmosphereBoundary, vec3(1.0));
 		//return transmittanceFromR0ToTopAtmosphereBoundary;
 	}
