@@ -64,21 +64,6 @@ void Widget::paintGL()
 		//rotate and move the world according to FPS view
 		if (focus)
 		{
-			//Mouse logic
-			angleX += haveToY / sensi;
-			angleY += haveToX / sensi;
-			if (angleX > 90)
-				angleX = 90;
-			if (angleX < -90)
-				angleX = -90;
-			if (angleY > 360)
-				angleY = angleY - 360;
-			if (angleY < 0)
-				angleY = 360 + angleY;
-			QPoint cursorPos(width() / 2.0, height() / 2.0);
-			QCursor::setPos(mapToGlobal(cursorPos).x(), mapToGlobal(cursorPos).y());
-			haveToY = 0;
-			haveToX = 0;
 			//Keyboard movement logic
 			camX += velocity.x() * dtime;
 			camY += velocity.y() * dtime;
@@ -247,8 +232,18 @@ void Widget::checkMouse()
 	float dx = mapFromGlobal(QCursor::pos()).x() - screenCenter.x();
 	//Y increases from top to bottom, hence vector of vertical direction is given by  center of screen minus cursor pos
 	float dy = screenCenter.y() - mapFromGlobal(QCursor::pos()).y();
-	haveToX += dx;
-	haveToY += dy;
+	//Mouse logic
+	angleX += dy / sensi;
+	angleY += dx / sensi;
+	if (angleX > 90)
+		angleX = 90;
+	if (angleX < -90)
+		angleX = -90;
+	if (angleY > 360)
+		angleY = angleY - 360;
+	if (angleY < 0)
+		angleY = 360 + angleY;
+	QCursor::setPos(mapToGlobal(screenCenter).x(), mapToGlobal(screenCenter).y());
 }
 
 void Widget::startTimer()
