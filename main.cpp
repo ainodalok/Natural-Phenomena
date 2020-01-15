@@ -24,6 +24,8 @@ int main(int argc, char *argv[])
 	//Might be faster on NVIDIA cards + test quad rendering using legacy OpenGL
 	format.setProfile(QSurfaceFormat::CompatibilityProfile);
 	format.setRenderableType(QSurfaceFormat::OpenGL);
+	//Disable VSync
+	format.setSwapInterval(0);
 	QSurfaceFormat::setDefaultFormat(format);
 
 	//create the application
