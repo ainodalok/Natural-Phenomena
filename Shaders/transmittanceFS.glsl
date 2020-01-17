@@ -1,12 +1,8 @@
-layout(location = 0) uniform vec3 rBeta;
-layout(location = 1) uniform vec3 mBetaExt;
-layout(location = 2) uniform float rH;
-layout(location = 3) uniform float mH;
-layout(location = 4) uniform float Rg;
-layout(location = 5) uniform float Rt;
-layout(location = 6) uniform int TRANSMITTANCE_SAMPLES;
-layout(location = 7) uniform int T_W;
-layout(location = 8) uniform int T_H;
+layout(location = 4) uniform vec3 rBeta;
+layout(location = 5) uniform vec3 mBetaExt;
+layout(location = 6) uniform float rH;
+layout(location = 7) uniform float mH;
+layout(location = 8) uniform int TRANSMITTANCE_SAMPLES;
 
 layout(location = 0) out vec3 color;
 
@@ -30,12 +26,14 @@ vec3 getTransmittanceRMuFromUV()
 	float rho = aU * H;
 	//Getting r from rho formula
 	float r = sqrt(rho * rho + Rg * Rg);
+
 	//Minimum distance to atmosphere boundary
 	float dMin = Rt - r;
 	//Maximum distance to Rt (distance to horizon from current r + distance to top atmosphere boundary from horizon)
 	float dMax = rho + H;
 	//Distance to top atmosphere boundary derived from mapping formula MU_MU = (d - d_min) / (d_max - d_min)
 	float d = aV * (dMax - dMin) + dMin;
+
 	//Mu derived from distance to top atmosphere boundary formula  d = -r * mu + sqrt(r * r * mu * mu - r * r + Rt * Rt)
 	//In case distance to top atmosphere boundary is 0, avoid division by 0 by setting mu to 1, 
 	//since distance to top atmosphere boundary equals to 0 only when r = Rt and mu = 1 (looking up)
@@ -47,6 +45,7 @@ vec3 getTransmittanceRMuFromUV()
 float opticalDepth(float H, float r, float mu, float d)
 {
 	float result = 0.0;
+
 	float segmentLength = d / float(TRANSMITTANCE_SAMPLES);
 	for (int i = 0; i <= TRANSMITTANCE_SAMPLES; i++) 
 	{

@@ -132,15 +132,16 @@ void QuadRenderer::precomputeT()
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureIDs[T], 0);
 	glViewport(0, 0, T_W, T_H);
 	transmittanceShader->use();
-	glUniform3fv(0, 1, &(atmosphere->rBeta[0]));
-	glUniform3fv(1, 1, &(atmosphere->mBetaExt[0]));
-	glUniform1f(2, atmosphere->rH);
-	glUniform1f(3, atmosphere->mH);
-	glUniform1f(4, atmosphere->Rg);
-	glUniform1f(5, atmosphere->Rt);
-	glUniform1i(6, TRANSMITTANCE_SAMPLES);
-	glUniform1i(7, T_W);
-	glUniform1i(8, T_H);
+	glUniform1f(0, atmosphere->Rg);
+	glUniform1f(1, atmosphere->Rt);
+	glUniform1i(2, T_W);
+	glUniform1i(3, T_H);
+	glUniform3fv(4, 1, &(atmosphere->rBeta[0]));
+	glUniform3fv(5, 1, &(atmosphere->mBetaExt[0]));
+	glUniform1f(6, atmosphere->rH);
+	glUniform1f(7, atmosphere->mH);
+	glUniform1i(8, TRANSMITTANCE_SAMPLES);
+	
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 

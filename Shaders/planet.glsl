@@ -1,10 +1,5 @@
-layout(location = 0) uniform float Rg;
-layout(location = 1) uniform float Rt;
-layout(location = 2) uniform int T_W;
-layout(location = 3) uniform int T_H;
 layout(location = 4) uniform float sunAngularRadius;
 layout(location = 5) uniform vec3 s;
-layout(binding = T) uniform sampler2D transmittanceTex;
 
 #ifdef VERTEX
 layout(location = 0) out vec3 ray;
@@ -43,19 +38,19 @@ void main()
 	float mu = dot(vec3(0.0, 1.0, 0.0), fragRay);
 	//currently assume inside atmosphere
 	//check for either first ground or top atmosphere intersection
-	float d = r * r * mu * mu - r * r + Rg * Rg;
+	float RMu = r * mu;
+	float d = RMu * RMu - r * r + Rg * Rg;
 	bool intersectsGround = false;
 	if ((d >= 0) && (mu < 0.0))
 	{
 		intersectsGround = true;
-		d = -r * mu - sqrt(d);
-		color = vec4(getTransmittance(T_W, T_H, Rg, Rt, transmittanceTex, r, mu, d, intersectsGround), 1.0);
+		d = -RMu - sqrt(d);
+		color = vec4(getTransmittance(r, mu, d, intersectsGround), 1.0);
 	}
 	else
 	{
-		d = -r * mu + sqrt(r * r * mu * mu - r * r + Rt * Rt);
-		color = vec4( getTransmittance(T_W, T_H, Rg, Rt, transmittanceTex, r, mu, d, intersectsGround), 1.0);
+		d = -RMu + sqrt(RMu * RMu - r * r + Rt * Rt);
+		color = vec4(getTransmittance(r, mu, d, intersectsGround), 1.0);
 	}
-	//color = texture2D(transmittanceTex, uv);
 }
 #endif
