@@ -43,19 +43,36 @@ void main()
 	float mu = dot(vec3(0.0, 1.0, 0.0), fragRay);
 	//currently assume inside atmosphere
 	//check for either first ground or top atmosphere intersection
+	
 	float RMu = r * mu;
-	float d = RMu * RMu - r * r + Rg * Rg;
-	bool intersectsGround = false;
-	if ((d >= 0) && (mu < 0.0))
+	//Outside of atmosphere
+	if (r > Rt)
 	{
-		intersectsGround = true;
-		d = -RMu - sqrt(d);
-		color = vec4(getTransmittance(r, mu, d, intersectsGround), 1.0);
+		//Check for intersection with atmosphere
+		float dA = RMu * RMu - r * r + Rt * Rt;
+		if ((dA >= 0) && (mu < 0.0))
+		{
+			r = Rt;
+			mu = ;
+			RMu = r * mu;
+		}
 	}
-	else
+
+	if (r <= Rt)
 	{
-		d = -RMu + sqrt(RMu * RMu - r * r + Rt * Rt);
-		color = vec4(getTransmittance(r, mu, d, intersectsGround) * directSunlight(fragRay), 1.0);
+		float d = RMu * RMu - r * r + Rg * Rg;
+		bool intersectsGround = false;
+		if ((d >= 0) && (mu < 0.0))
+		{
+			intersectsGround = true;
+			d = -RMu - sqrt(d);
+			color = vec4(getTransmittance(r, mu, d, intersectsGround), 1.0);
+		}
+		else
+		{
+			d = -RMu + sqrt(RMu * RMu - r * r + Rt * Rt);
+			color = vec4(getTransmittance(r, mu, d, intersectsGround) * directSunlight(fragRay), 1.0);
+		}
 	}
 }
 #endif
