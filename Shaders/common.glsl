@@ -21,7 +21,7 @@ vec2 getTransmittanceUvFromRMu(float r, float mu)
 	//Distance to horizon from top atmosphere boundary
 	float H = sqrt(Rt * Rt - Rg * Rg);
 	//Rho - distance to horizon from current r
-	float rho = sqrt(r * r - Rg * Rg);/////////////////BUGGED when r == Rg true
+	float rho = sqrt(r * r - Rg * Rg);/////////////////BUGGED when r == Rg true, workaround - precision qualifier for u and v
 	//Both quadratic equation solution of sphere intersection and geometrically calculated distance from point at r to the atmosphere boundary along the ray
 	float d = -r * mu + sqrt(r * r * mu * mu - r * r + Rt * Rt);
 	//Minimum distance to atmosphere boundary

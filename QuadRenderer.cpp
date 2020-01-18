@@ -197,6 +197,10 @@ void QuadRenderer::renderAtmosphere(float angleX, float angleY, float camX, floa
 	glUniform1i(3, T_H);
 	glUniform1f(4, atmosphere->sunAngularRadius);
 	glUniform3fv(5, 1, &(atmosphere->s[0]));
+	glUniform1f(6, width);
+	glUniform1f(7, height);
+	glUniform1f(8, FOV_X);
+	glUniformMatrix3fv(9, 1, GL_FALSE, QQuaternion::fromEulerAngles(-angleX, angleY, 0.0f).toRotationMatrix().constData());
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glEnable(GL_DEPTH_TEST);
 

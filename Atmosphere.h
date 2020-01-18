@@ -23,7 +23,7 @@ public:
 	float getRg();
 
 	//Precomputation variables initialized to earth values
-	QVector3D s = QVector3D(0.0f, 0.35f, 1.0f).normalized();
+	QVector3D s = QVector3D(0.0f, 0.02f, 1.0f).normalized();
 	float Rg = 6360e3f;
 	float Rt = 6420e3f;
 	float rH = 8000.0f;
