@@ -56,8 +56,6 @@ vec3 getTransmittance(float r, float mu, float d, bool intersectsGround)
 	//Cosine law, mu is a cos of outer angle, hence it is inverted
 	float negRMu = r * (-mu);
 	float r0 = sqrt(d * d + r * r - 2.0 * negRMu * d);
-	r0 * r0 = d * d + r * r - 2.0 * negRMu * d
-
 	//Clamp radius so that it would be bound by atmosphere boundaries
 	//float r0Clamped = clamp(r0, Rg, Rt); //Clamp function returning slightly out of bounds values
 	float r0Clamped = r0;
@@ -65,7 +63,7 @@ vec3 getTransmittance(float r, float mu, float d, bool intersectsGround)
 		r0Clamped = Rg;
 	if (r0Clamped > Rt)
 		r0Clamped = Rt;
-	float mu0 = (d - negRMu) / r0Clamped;
+	float mu0 = -(negRMu - d) / r0Clamped;
 
 	//a, b - arbitrary points, t - point at top atmosphere boundary
 	//Tab = Tat / Tbt 

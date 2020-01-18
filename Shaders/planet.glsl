@@ -52,12 +52,14 @@ void main()
 		float dA = RMu * RMu - r * r + Rt * Rt;
 		if ((dA >= 0) && (mu < 0.0))
 		{
+			dA = -RMu - sqrt(dA);
+			//Move r to atmosphere boundary and recalculate mu
 			r = Rt;
-			mu = ;
+			mu = -(-RMu - dA) / r;
 			RMu = r * mu;
 		}
 	}
-
+	//SUN IS NOT SEEN OUTSIDE ATMO
 	if (r <= Rt)
 	{
 		float d = RMu * RMu - r * r + Rg * Rg;
