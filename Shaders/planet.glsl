@@ -1,3 +1,6 @@
+//Special GLSL language integration VS extension directive
+//! #include "common.glsl"
+
 layout(location = 4) uniform float sunAngularRadius;
 layout(location = 5) uniform vec3 s;
 layout(location = 6) uniform float width;

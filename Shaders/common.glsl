@@ -16,7 +16,7 @@ layout(location = 3) uniform int T_H;
 
 layout(binding = T) uniform sampler2D transmittanceTex;
 
-vec2 getTransmittanceUvFromRMu(float r, float mu) 
+vec2 getTransmittanceUvFromRMu(float r, float mu)
 {
 	//Distance to horizon from top atmosphere boundary
 	float H = sqrt(Rt * Rt - Rg * Rg);
@@ -64,7 +64,6 @@ vec3 getTransmittance(float r, float mu, float d, bool intersectsGround)
 	if (r0Clamped > Rt)
 		r0Clamped = Rt;
 	float mu0 = -(negRMu - d) / r0Clamped;
-
 	//a, b - arbitrary points, t - point at top atmosphere boundary
 	//Tab = Tat / Tbt 
 	//min in case division by 0

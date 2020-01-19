@@ -1,3 +1,6 @@
+//Special GLSL language integration VS extension directive
+//! #include "common.glsl"
+
 void main()
 {
 	vec2 uv = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);

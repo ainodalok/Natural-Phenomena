@@ -1,3 +1,6 @@
+//Special GLSL language integration VS extension directive
+//! #include "common.glsl"
+
 layout(location = 4) uniform vec3 rBeta;
 layout(location = 5) uniform vec3 mBetaExt;
 layout(location = 6) uniform float rH;

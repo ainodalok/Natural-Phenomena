@@ -1,3 +1,6 @@
+//Special GLSL language integration VS extension directive
+//! #include "common.glsl"
+
 #ifdef VERTEX
 layout(location = 0) out vec2 uv;
 
