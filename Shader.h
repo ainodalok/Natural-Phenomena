@@ -1,20 +1,21 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#ifdef _WIN32 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
 #include <QOpenGLExtraFunctions>
 #include <string>
-#include "Atmosphere.h"
+#include <fstream>
+#include <sstream>
+#include <QDebug>
 
 class Shader : protected QOpenGLExtraFunctions
 {
 public:
-	Shader(const std::string& combinedShaderPath);
+	explicit Shader(const std::string& combinedShaderPath);
 	Shader(const std::string& vertexShaderPath, const std::string& geometryShaderPath, const std::string& fragmentShaderPath);
+	Shader(const Shader&) = default;
+	Shader& operator=(const Shader&) = default;
+	Shader(const Shader&&) = delete;
+	Shader& operator=(const Shader&&) = delete;
 	~Shader();
 
 	void use();
@@ -22,7 +23,7 @@ public:
 private:
 	GLuint ID = 0;
 
-	std::string getStringFromFile(const std::string& path);
+	static std::string getStringFromFile(const std::string& path);
 	GLuint buildProgramFromShaderCode(const std::string& vertexShaderCode, const std::string& geometryShaderCode, const std::string& fragmentShaderCode);
 	GLuint compileShaderFromCode(GLenum shaderStage, const std::string& shaderCode);
 	void checkCompilerErrors(GLuint id, const char* type);

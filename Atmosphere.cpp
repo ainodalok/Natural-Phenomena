@@ -1,15 +1,7 @@
 ﻿#include "Atmosphere.h"
 
-#ifdef _WIN32 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#include <QtWidgets>
-#include <QtDebug>
-
-Atmosphere::Atmosphere()
-{
+//Atmosphere::Atmosphere()
+//{
 	//Define sky properties
 	//s = QVector3D(0.0f, 0.35f, 1.0f);
 	//s.normalize();
@@ -34,7 +26,7 @@ Atmosphere::Atmosphere()
 	//Angular radius of the sun
 	//sunAngularRadius = 0.0046251225f;
 	//sunAngularRadius = 0.017;
-}
+//}
 //
 //bool Atmosphere::solveQuadratic(float a, float b, float c, float& x1, float& x2)
 //{
@@ -82,14 +74,14 @@ Atmosphere::Atmosphere()
 //	return true;
 //}
 
-void Atmosphere::updateS(float dtime)
+void Atmosphere::updateS(const float dtime)
 {
 	//Rotate sun direction by 2 degrees around x axis
-	s = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, dtime * 0.05).rotatedVector(s);
+	s = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 0.05f * dtime).rotatedVector(s);
 	s.normalize();
 }
 
-float Atmosphere::getRg()
+float Atmosphere::getRg() const
 {
 	return Rg;
 }

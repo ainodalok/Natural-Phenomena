@@ -1,36 +1,30 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#ifdef _WIN32 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#include <GL/gl.h>
-#include <Qt>
-#include <QApplication>
-#include <QtWidgets>
-#include <QOpenGLWidget>
-#include <QOpenGLExtraFunctions>
-#include <QTimer>
 #include <QElapsedTimer>
 #include <QKeyEvent>
-#include <QVector3D>
-#include <QDebug>
-#include <math.h>
+#include <QOpenGLDebugLogger>
+#include <QOpenGLWidget>
+#include <QTimer>
+
 #include "QuadRenderer.h"
 
+static const float M_PIF = static_cast<float>(M_PI);
 
-class Widget : public QOpenGLWidget, protected QOpenGLExtraFunctions
+class Widget final : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
 	Q_OBJECT
 public:
-	Widget(QWidget* parent = 0);
+	explicit Widget(QWidget* parent = nullptr);
 	~Widget();
-	void stopTimer();
-	void startTimer();
+	Widget(const Widget&) = delete;
+	Widget& operator=(const Widget&) = delete;
+	Widget(const Widget&&) = delete;
+	Widget& operator=(const Widget&&) = delete;
+	void stopTimer() const;
+	void startTimer() const;
 	void changeFocus();
-	bool getFocus();
+	[[nodiscard]] bool getFocus() const;
 
 protected:
 	//called when OpenGL context is set up
@@ -41,12 +35,12 @@ protected:
 	void paintGL() override;
 
 private:
-	virtual void keyPressEvent(QKeyEvent * event);
-	virtual void keyReleaseEvent(QKeyEvent * event);
+	void keyPressEvent(QKeyEvent * event) override;
+	void keyReleaseEvent(QKeyEvent * event) override;
 
-	virtual void mousePressEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event) override;
 
-	virtual void wheelEvent(QWheelEvent *event);
+	void wheelEvent(QWheelEvent *event) override;
 
 	//Manages controls
 	void controlTimerEvent();
@@ -66,31 +60,31 @@ private:
 
 	//Camera properties
 	//Horizontal camera angle increases as camera turns right(cw rotation)
-	float angleY = 0;
+	float angleY = 0.0f;
 	//Vertical camera angle increases as camera turns up(cw rotation)
-	float angleX = 0;
-	float camX = 0;
-	float camY = 1.5;
-	float camZ = 5;
+	float angleX = 0.0f;
+	float camX = 0.0f;
+	float camY = 1.5f;
+	float camZ = 5.0f;
 
 	//Velocity vector
 	QVector3D velocity = QVector3D(0.0, 0.0, 0.0);
 	float speedModifier = 0.01f;
 
 	//Mouse properties
-	float mouseX = 0;
-	float mouseY = 0;
+	float mouseX = 0.0f;
+	float mouseY = 0.0f;
 	int haveToY = 0;
 	int haveToX = 0;
-	float sensi = 5;
+	float sensi = 5.0f;
 	
 	//Time governing
-	float dtime = 0;
-	float timeStamp = 0;
+	float dtime = 0.0f;
+	float timeStamp = 0.0f;
 
 	//Timers
-	QTimer *timer;
-	QElapsedTimer *dtimer;
+	QTimer *timer = nullptr;
+	QElapsedTimer *dtimer = nullptr;
 
 	//Effects to render
 	QuadRenderer* quadRenderer = nullptr;

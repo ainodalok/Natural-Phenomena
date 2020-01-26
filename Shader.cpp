@@ -1,20 +1,16 @@
 #include "Shader.h"
-#include <fstream>
-#include <sstream>
-#include <QDebug>
-#include <string>
 
 Shader::Shader(const std::string& combinedShaderPath)
 {
 	initializeOpenGLFunctions();
-	std::string headerCode = getStringFromFile("./Shaders/common.glsl");
+	const std::string headerCode = getStringFromFile("./Shaders/common.glsl");
 
-	std::string shaderCode = getStringFromFile(combinedShaderPath);
-	std::string vertexShaderCode = headerCode + "\n#define VERTEX\n" + shaderCode;
+	const std::string shaderCode = getStringFromFile(combinedShaderPath);
+	const std::string vertexShaderCode = headerCode + "\n#define VERTEX\n" + shaderCode;
 	std::string geometryShaderCode = "null";
 	if (shaderCode.find("#ifdef GEOMETRY") != std::string::npos)
-		std::string geometryShaderCode = headerCode + "\n#define GEOMETRY\n" + shaderCode;
-	std::string fragmentShaderCode = headerCode + "\n#define FRAGMENT\n" + shaderCode;
+		geometryShaderCode = headerCode + "\n#define GEOMETRY\n" + shaderCode;
+	const std::string fragmentShaderCode = headerCode + "\n#define FRAGMENT\n" + shaderCode;
 
 	ID = buildProgramFromShaderCode(vertexShaderCode, geometryShaderCode, fragmentShaderCode);
 }
@@ -22,13 +18,13 @@ Shader::Shader(const std::string& combinedShaderPath)
 Shader::Shader(const std::string& vertexShaderPath, const std::string& geometryShaderPath, const std::string& fragmentShaderPath)
 {
 	initializeOpenGLFunctions();
-	std::string headerCode = getStringFromFile("./Shaders/common.glsl") + "\n";
+	const std::string headerCode = getStringFromFile("./Shaders/common.glsl") + "\n";
 
-	std::string vertexShaderCode = headerCode + getStringFromFile(vertexShaderPath);
+	const std::string vertexShaderCode = headerCode + getStringFromFile(vertexShaderPath);
 	std::string geometryShaderCode = "null";
 	if (geometryShaderPath != "null")
-		std::string geometryShaderCode = headerCode + getStringFromFile(geometryShaderPath);
-	std::string fragmentShaderCode = headerCode + getStringFromFile(fragmentShaderPath);
+		geometryShaderCode = headerCode + getStringFromFile(geometryShaderPath);
+	const std::string fragmentShaderCode = headerCode + getStringFromFile(fragmentShaderPath);
 
 	ID = buildProgramFromShaderCode(vertexShaderCode, geometryShaderCode, fragmentShaderCode);
 }
@@ -50,21 +46,23 @@ std::string Shader::getStringFromFile(const std::string& path)
 		file.close();
 		return stream.str();
 	}
-	catch (std::ifstream::failure e)
+	catch (std::ifstream::failure &e)
 	{
 		qDebug() << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ";
+		qDebug() << e.what();
+		return "";
 	}
 }
 
 GLuint Shader::buildProgramFromShaderCode(const std::string& vertexShaderCode, const std::string& geometryShaderCode, const std::string& fragmentShaderCode)
 {
-	GLuint vertexShaderID = compileShaderFromCode(GL_VERTEX_SHADER, vertexShaderCode);
+	const GLuint vertexShaderID = compileShaderFromCode(GL_VERTEX_SHADER, vertexShaderCode);
 	GLuint geometryShaderID = 0;
 	if (geometryShaderCode != "null")
 		geometryShaderID = compileShaderFromCode(GL_GEOMETRY_SHADER, geometryShaderCode);
-	GLuint fragmentShaderID = compileShaderFromCode(GL_FRAGMENT_SHADER, fragmentShaderCode);
+	const GLuint fragmentShaderID = compileShaderFromCode(GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-	GLuint programID = glCreateProgram();
+	const GLuint programID = glCreateProgram();
 
 	glAttachShader(programID, vertexShaderID);
 	if (geometryShaderID)
@@ -87,11 +85,11 @@ GLuint Shader::buildProgramFromShaderCode(const std::string& vertexShaderCode, c
 	return programID;
 }
 
-GLuint Shader::compileShaderFromCode(GLenum shaderStage, const std::string& shaderCode)
+GLuint Shader::compileShaderFromCode(const GLenum shaderStage, const std::string& shaderCode)
 {
-	GLuint shader = glCreateShader(shaderStage);
-	const char* shaderCodeC_STR = shaderCode.c_str();
-	glShaderSource(shader, 1, &shaderCodeC_STR, NULL);
+	const GLuint shader = glCreateShader(shaderStage);
+	const char* shaderCode_cStr = shaderCode.c_str();
+	glShaderSource(shader, 1, &shaderCode_cStr, nullptr);
 	glCompileShader(shader);
 	switch (shaderStage)
 	{
@@ -104,6 +102,7 @@ GLuint Shader::compileShaderFromCode(GLenum shaderStage, const std::string& shad
 		case GL_FRAGMENT_SHADER:
 			checkCompilerErrors(shader, "FRAGMENT");
 			break;
+		default: ;
 	}
 
 	return shader;
@@ -114,16 +113,16 @@ void Shader::use()
 	glUseProgram(ID);
 }
 
-void Shader::checkCompilerErrors(GLuint id, const char* type)
+void Shader::checkCompilerErrors(const GLuint id, const char* type)
 {
 	int success;
 	char infoLog[1024];
-	if (std::strcmp(type, "PROGRAM"))
+	if (std::strcmp(type, "PROGRAM") != 0 )
 	{
 		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(id, 1024, NULL, infoLog);
+			glGetShaderInfoLog(id, 1024, nullptr, infoLog);
 			qDebug() << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- ";
 		}
 	}
@@ -132,7 +131,7 @@ void Shader::checkCompilerErrors(GLuint id, const char* type)
 		glGetProgramiv(id, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			glGetProgramInfoLog(id, 1024, NULL, infoLog);
+			glGetProgramInfoLog(id, 1024, nullptr, infoLog);
 			qDebug() << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- ";
 		}
 	}

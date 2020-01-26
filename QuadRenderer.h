@@ -8,25 +8,25 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <QtWidgets>
-#include <QVector3D>
-#include <QVector2D>
-#include <QTransform>
-#include <QDebug>
+#include <QtMath>
 #include <vector>
-#include <iostream>
+
 #include "Atmosphere.h"
 #include "Shader.h"
 
 //90 degrees fovx is typical for 16:9, which is most common aspect ratio
-#define FOV_X 90.0f
+constexpr float FOV_X = 90.0f;
 
-class QuadRenderer : protected QOpenGLExtraFunctions
+class QuadRenderer final : protected QOpenGLExtraFunctions
 {
 public:
 	QuadRenderer(int width, int height);
 	~QuadRenderer();
-
+	QuadRenderer(const QuadRenderer&) = delete;
+	QuadRenderer& operator =(QuadRenderer const&) = delete;
+	QuadRenderer(const QuadRenderer&&) = delete;
+	QuadRenderer& operator =(QuadRenderer const&&) = delete;
+	
 	enum Texture
 	{
 		T,
@@ -48,7 +48,7 @@ public:
 	Atmosphere* atmosphere;
 	
 private:
-	float aspectRatio();
+	[[nodiscard]] float aspectRatio() const;
 	void precompute();
 	void precomputeT();
 	void drawTestQuad(float angleX, float angleY, float camX, float camY, float camZ);
@@ -70,7 +70,7 @@ private:
 	int MU_NU = 8;
 
 	GLuint FBO = 0;
-	GLuint FBOtexture = 0;
+	GLuint screenTexture = 0;
 	GLuint RBO = 0;
 
 	int width = 0;

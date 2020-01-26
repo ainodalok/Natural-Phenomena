@@ -1,21 +1,5 @@
 #include "Window.h"
 
-#ifdef _WIN32 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#include <QEvent>
-#include <QtWidgets>
-#include <GL/glu.h>
-#include <GL/gl.h>
-#include <QGLWidget>
-#include <Qt>
-#include <QTimer>
-#include <QKeyEvent>
-#include <QDebug>
-#include <QApplication>
-
 //constructor / destructor
 Window::Window()
 {
@@ -25,7 +9,7 @@ Window::Window()
 		Qt::LeftToRight,
 		Qt::AlignCenter,
 		QSize(1280, 720),
-		QApplication::desktop()->availableGeometry(1)
+		QApplication::screens().back()->availableGeometry()
 	));
 	//show
 	showMaximized();
@@ -36,15 +20,10 @@ Window::Window()
 	setCentralWidget(widget);
 } 
 
-Window::~Window()
-{
-
-}
-
 void Window::createDockWindows()
 {
 	//Create dock widget for all sphere widgets
-	QDockWidget* sphereDock = new QDockWidget(tr("Options"), this);
+	auto sphereDock = new QDockWidget(tr("Options"), this);
 	sphereDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	addDockWidget(Qt::RightDockWidgetArea, sphereDock);
 	sphereDock->setMinimumSize(300, 200);

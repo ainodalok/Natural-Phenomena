@@ -13,7 +13,7 @@ Widget::Widget(QWidget *parent) : QOpenGLWidget(parent)
 	dtimer->start();
 	timeStamp = dtimer->elapsed();
 	//timer for controls
-	connect(timer, SIGNAL(timeout()), this, SLOT(timerFunction()));
+	(void)connect(timer, SIGNAL(timeout()), this, SLOT(timerFunction()));
 }
 
 Widget::~Widget()
@@ -41,7 +41,7 @@ void Widget::initializeGL()
 }
 
 //called every time the widget is resized
-void Widget::resizeGL(int w, int h)
+void Widget::resizeGL(const int w, const int h)
 {
 	//Rebind all textures 
 	if (quadRenderer != nullptr)
@@ -66,10 +66,22 @@ void Widget::paintGL()
 		{
 			//Keyboard movement logic
 			camX += velocity.x() * dtime;
-			camY += velocity.y() * dtime;
+			
 			camZ += velocity.z() * dtime;
+			if (velocity.y() > 0 &&
+				quadRenderer->atmosphere->distance * velocity.y() * dtime < 1.5e8f - quadRenderer->atmosphere->distance)
+			{
+				quadRenderer->atmosphere->distance += quadRenderer->atmosphere->distance * velocity.y() * dtime;
+				camY += velocity.y() * dtime;
+			}
+			else if (velocity.y() < 0 &&
+				quadRenderer->atmosphere->distance * velocity.y() * dtime < quadRenderer->atmosphere->distance - 1.0f)
+			{
+				quadRenderer->atmosphere->distance -= quadRenderer->atmosphere->distance * abs(velocity.y()) * dtime;
+				camY += velocity.y() * dtime;
+			}
 		}
-		//(quadRenderer->atmosphere)->updateS(dtime);
+		quadRenderer->atmosphere->updateS(dtime);
 		timeStamp = dtimer->elapsed();
 	}
 	
@@ -85,7 +97,7 @@ void Widget::changeFocus()
 		//Removes cursor remembering its position
 		this->setCursor(Qt::BlankCursor);
 		oldPoint = QCursor::pos();
-		QPoint cursorPos(width() / 2.0, height() / 2.0);
+		const QPoint cursorPos(width() / 2, height() / 2);
 		QCursor::setPos(mapToGlobal(cursorPos).x(), mapToGlobal(cursorPos).y());
 		setFocus();
 	}
@@ -94,7 +106,7 @@ void Widget::changeFocus()
 		//Restores cursor
 		QCursor::setPos(oldPoint);
 		this->setCursor(Qt::ArrowCursor);
-		((QWidget*)parent())->setFocus();
+		dynamic_cast<QWidget*>(parent())->setFocus();
 		up = false;
 		down = false;
 		forward = false;
@@ -104,7 +116,7 @@ void Widget::changeFocus()
 	}
 }
 
-bool Widget::getFocus()
+bool Widget::getFocus() const
 {
 	return focus;
 }
@@ -157,49 +169,49 @@ void Widget::controlTimerEvent()
 
 	if (forward)
 	{
-		addVelocity = QVector3D(sin(angleY / float(180) * M_PI) * cos(angleX / float(180) * M_PI), 
-								sin(angleX / float(180) * M_PI), 
-								-cos(angleY / float(180) * M_PI) * cos(angleX / float(180) * M_PI));
+		addVelocity = QVector3D(sinf(angleY / 180.0f * M_PIF) * cosf(angleX / 180.0f * M_PIF),
+								sinf(angleX / 180.0f * M_PIF),
+								-cosf(angleY / 180.0f * M_PIF) * cosf(angleX / 180.0f * M_PIF));
 		velocity += addVelocity;
 	}
 
 	if (back)
 	{
-		addVelocity = QVector3D(-sin(angleY / float(180) * M_PI) * cos(angleX / float(180) * M_PI),
-								-sin(angleX / float(180) * M_PI),
-								cos(angleY / float(180) * M_PI) * cos(angleX / float(180) * M_PI));
+		addVelocity = QVector3D(-sinf(angleY / 180.0f * M_PIF) * cosf(angleX / 180.0f * M_PIF),
+								-sinf(angleX / 180.0f * M_PIF),
+								cosf(angleY / 180.0f * M_PIF) * cosf(angleX / 180.0f * M_PIF));
 		velocity += addVelocity;
 	}
 
 	if (sideL)
 	{
-		addVelocity = QVector3D(-cos(angleY / float(180) * M_PI),
-								0.0,
-								-sin(angleY / float(180) * M_PI));
+		addVelocity = QVector3D(-cosf(angleY / 180.0f * M_PIF),
+								0.0f,
+								-sinf(angleY / 180.0f * M_PIF));
 		velocity += addVelocity;
 	}
 
 	if (sideR)
 	{
-		addVelocity = QVector3D(cos(angleY / float(180) * M_PI),
-								0.0,
-								sin(angleY / float(180) * M_PI));
+		addVelocity = QVector3D(cosf(angleY / 180.0f * M_PIF),
+								0.0f,
+								sinf(angleY / 180.0f * M_PIF));
 		velocity += addVelocity;
 	}
 
 	if (up)
 	{
-		addVelocity = QVector3D(0.0,
-								1.0,
-								0.0);
+		addVelocity = QVector3D(0.0f,
+								1.0f,
+								0.0f);
 		velocity += addVelocity;
 	}
 
 	if (down)
 	{
-		addVelocity = QVector3D(0.0,
-								-1.0,
-								0.0);
+		addVelocity = QVector3D(0.0f,
+								-1.0f,
+								0.0f);
 		velocity += addVelocity;
 	}
 
@@ -211,27 +223,23 @@ void Widget::controlTimerEvent()
 //Sensitivity
 void Widget::wheelEvent(QWheelEvent *event)
 {
-	QPoint numDegrees = event->angleDelta() / 8;
+	const QPoint numDegrees = event->angleDelta() / 8;
 
-	if ((numDegrees.y() > 0) && (sensi > 1))
-	{
+	if (numDegrees.y() > 0 && sensi > 1)
 		sensi -= 1;
-	}
 
-	if ((numDegrees.y() < 0) && (sensi < 30))
-	{
+	if (numDegrees.y() < 0 && sensi < 30)
 		sensi += 1;
-	}
 }
 
 //Mouse control
 void Widget::checkMouse()
 {
-	QPoint screenCenter(width() / 2.0, height() / 2.0);
+	const QPoint screenCenter(width() / 2, height() / 2);
 	//X increases from left to right, hence vector of horizontal direction is given by cursor pos minus center of screen
-	float dx = mapFromGlobal(QCursor::pos()).x() - screenCenter.x();
+	const float dx = static_cast<float>(mapFromGlobal(QCursor::pos()).x() - screenCenter.x());
 	//Y increases from top to bottom, hence vector of vertical direction is given by  center of screen minus cursor pos
-	float dy = screenCenter.y() - mapFromGlobal(QCursor::pos()).y();
+	const float dy = static_cast<float>(screenCenter.y() - mapFromGlobal(QCursor::pos()).y());
 	//Mouse logic
 	angleX += dy / sensi;
 	angleY += dx / sensi;
@@ -246,12 +254,12 @@ void Widget::checkMouse()
 	QCursor::setPos(mapToGlobal(screenCenter).x(), mapToGlobal(screenCenter).y());
 }
 
-void Widget::startTimer()
+void Widget::startTimer() const
 {
 	timer->start(0);
 }
 
-void Widget::stopTimer()
+void Widget::stopTimer() const
 {
 	timer->stop();
 }

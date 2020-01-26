@@ -1,41 +1,36 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QGLWidget>
-#include <QMenuBar>
-#include <QSlider>
+#include <QApplication>
 #include <QBoxLayout>
-#include <QObject>
-#include "Widget.h"
+#include <QDockWidget>
 #include <QMainWindow>
+#include <QScreen>
 #include <QScrollArea>
-#include <QLineEdit>
+#include <QStyle>
 
-class Window : public QMainWindow
+#include "Widget.h"
+
+class Window final : public QMainWindow
 {
 Q_OBJECT
 public:
 	//Constructor / destructor
 	Window();
-	~Window();
 
 	void createDockWindows();
 
 	//Main widget
-	Widget* widget = 0;
-	QVBoxLayout* scrollLayout;
-	QScrollArea* scrollArea;
-	QWidget* scrollWidget;
+	Widget* widget = nullptr;
+	QVBoxLayout* scrollLayout = nullptr;
+	QScrollArea* scrollArea = nullptr;
+	QWidget* scrollWidget = nullptr;
 
 	//Resets all the interface elements
 	void ResetInterface();
 
-protected:
-
 private:
-
-	virtual void mouseReleaseEvent(QMouseEvent *event);
-
-	virtual void changeEvent(QEvent* event);	
+	void mouseReleaseEvent(QMouseEvent *event) override;
+	void changeEvent(QEvent* event) override;	
 };
 #endif

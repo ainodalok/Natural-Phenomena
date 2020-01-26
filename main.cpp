@@ -1,23 +1,9 @@
-#ifdef _WIN32 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QStyle>
-#include <GL/gl.h>
-#include <time.h>
 #include "Window.h"
-#include <QtDebug>
-#include <QResource>
 
 //RenderDoc Qt Environment Variable
 //PATH=H:\Apps\Qt\5.13.0\msvc2017_64\bin
 int main(int argc, char *argv[])
 {
-	srand(time(NULL));
-
 	QSurfaceFormat format;
 	format.setMajorVersion(4);
 	format.setMinorVersion(6);
@@ -32,10 +18,10 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 
 	//create a master widget
-	Window *window = new Window();
+	const Window *window = new Window();
 
 	//start it running
-	app.exec();
+	QApplication::exec();
 
 	//clean up
 	//	delete controller;

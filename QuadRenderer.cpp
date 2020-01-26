@@ -1,6 +1,6 @@
 #include "QuadRenderer.h"
 
-QuadRenderer::QuadRenderer(int width, int height)
+QuadRenderer::QuadRenderer(const int width, const int height)
 {
 	initializeOpenGLFunctions();
 	GLuint VAO;
@@ -22,7 +22,7 @@ QuadRenderer::QuadRenderer(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, T_W, T_H, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, T_W, T_H, 0, GL_RGB, GL_FLOAT, nullptr);
 
 	glActiveTexture(GL_TEXTURE0 + E);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
@@ -33,7 +33,7 @@ QuadRenderer::QuadRenderer(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, E_W, E_H, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, E_W, E_H, 0, GL_RGB, GL_FLOAT, nullptr);
 
 	glActiveTexture(GL_TEXTURE0 + S);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
@@ -45,7 +45,7 @@ QuadRenderer::QuadRenderer(int width, int height)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, nullptr);
 
 	glActiveTexture(GL_TEXTURE0 + DELTA_J);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
@@ -57,7 +57,7 @@ QuadRenderer::QuadRenderer(int width, int height)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, nullptr);
 
 	glActiveTexture(GL_TEXTURE0 + DELTA_E);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
@@ -68,7 +68,7 @@ QuadRenderer::QuadRenderer(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, E_W, E_H, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, E_W, E_H, 0, GL_RGB, GL_FLOAT, nullptr);
 
 	glActiveTexture(GL_TEXTURE0 + DELTA_SR);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
@@ -80,7 +80,7 @@ QuadRenderer::QuadRenderer(int width, int height)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, nullptr);
 
 	glActiveTexture(GL_TEXTURE0 + DELTA_SM);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
@@ -92,7 +92,7 @@ QuadRenderer::QuadRenderer(int width, int height)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, MU_R, MU_MU, MU_MU_S * MU_NU, 0, GL_RGB, GL_FLOAT, nullptr);
 
 	//Setup planet render shader
 	planetShader = new Shader("Shaders/planet.glsl");
@@ -111,13 +111,13 @@ QuadRenderer::~QuadRenderer()
 	glDeleteTextures(textureIDs.size(), textureIDs.data());
 	glDeleteFramebuffers(1, &FBO);
 	glDeleteRenderbuffers(1, &RBO);
-	glDeleteTextures(1, &FBOtexture);
+	glDeleteTextures(1, &screenTexture);
 	delete planetShader;
 	delete transmittanceShader;
 }
 
 //returns current aspect ratio based on current window
-float QuadRenderer::aspectRatio()
+float QuadRenderer::aspectRatio() const
 {
 	return float(width) / float(height);
 }
@@ -136,8 +136,8 @@ void QuadRenderer::precomputeT()
 	glUniform1f(1, atmosphere->Rt);
 	glUniform1i(2, T_W);
 	glUniform1i(3, T_H);
-	glUniform3fv(4, 1, &(atmosphere->rBeta[0]));
-	glUniform3fv(5, 1, &(atmosphere->mBetaExt[0]));
+	glUniform3fv(4, 1, &atmosphere->rBeta[0]);
+	glUniform3fv(5, 1, &atmosphere->mBetaExt[0]);
 	glUniform1f(6, atmosphere->rH);
 	glUniform1f(7, atmosphere->mH);
 	glUniform1i(8, TRANSMITTANCE_SAMPLES);
@@ -145,7 +145,7 @@ void QuadRenderer::precomputeT()
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-void QuadRenderer::drawTestQuad(float angleX, float angleY, float camX, float camY, float camZ)
+void QuadRenderer::drawTestQuad(const float angleX, const float angleY, const float camX, const float camY, const float camZ)
 {
 	//Initial rendering setup
 	glMatrixMode(GL_PROJECTION);
@@ -182,10 +182,10 @@ void QuadRenderer::drawTestQuad(float angleX, float angleY, float camX, float ca
 	glEnd();
 }
 
-void QuadRenderer::renderAtmosphere(float angleX, float angleY, float camX, float camY, float camZ)
+void QuadRenderer::renderAtmosphere(const float angleX, const float angleY, const float camX, const float camY, const float camZ)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, FBOtexture, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, screenTexture, 0);
 	glViewport(0, 0, width, height);
 	//clear the widget
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -196,11 +196,12 @@ void QuadRenderer::renderAtmosphere(float angleX, float angleY, float camX, floa
 	glUniform1i(2, T_W);
 	glUniform1i(3, T_H);
 	glUniform1f(4, atmosphere->sunAngularRadius);
-	glUniform3fv(5, 1, &(atmosphere->s[0]));
+	glUniform3fv(5, 1, &atmosphere->s[0]);
 	glUniform1f(6, width);
 	glUniform1f(7, height);
 	glUniform1f(8, FOV_X);
 	glUniformMatrix3fv(9, 1, GL_FALSE, QQuaternion::fromEulerAngles(-angleX, angleY, 0.0f).toRotationMatrix().constData());
+	glUniform1f(10, atmosphere->distance);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glEnable(GL_DEPTH_TEST);
 
@@ -217,20 +218,20 @@ void QuadRenderer::rebindPrecomputedTextures()
 	for (int textureType : PrecomputedTextures)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureType);
-		if ((textureType == T) || (textureType == E) || (textureType == DELTA_E))
+		if (textureType == T || textureType == E || textureType == DELTA_E)
 			glBindTexture(GL_TEXTURE_2D, textureIDs[textureType]);
 		else
 			glBindTexture(GL_TEXTURE_3D, textureIDs[textureType]);
 	}
 }
 
-void QuadRenderer::rebuildFramebuffer(int width, int height)
+void QuadRenderer::rebuildFramebuffer(const int width, const int height)
 {
 	this->width = width;
 	this->height = height;
 	if (FBO != 0)
 	{
-		glDeleteTextures(1, &FBOtexture);
+		glDeleteTextures(1, &screenTexture);
 		glDeleteRenderbuffers(1, &RBO);
 	}
 	else
@@ -239,15 +240,15 @@ void QuadRenderer::rebuildFramebuffer(int width, int height)
 	//Need max 2 bufferes for texture output
 	GLuint bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	glDrawBuffers(2, bufs);
-	glGenTextures(1, &FBOtexture);
+	glGenTextures(1, &screenTexture);
 	glActiveTexture(GL_TEXTURE0 + COUNT);
-	glBindTexture(GL_TEXTURE_2D, FBOtexture);
+	glBindTexture(GL_TEXTURE_2D, screenTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, FBOtexture, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, screenTexture, 0);
 	glGenRenderbuffers(1, &RBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);

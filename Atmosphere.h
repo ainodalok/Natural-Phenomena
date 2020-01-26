@@ -1,26 +1,19 @@
 #ifndef ATMOSPHERE_H
 #define ATMOSPHERE_H
 
-#ifdef _WIN32 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#include <GL/gl.h>
-#include <QVector2D>
-#include <QVector3D>
+#include <QQuaternion>
 
 class Atmosphere
 {
 public:
-	Atmosphere();
+	Atmosphere() = default;
 
 	//Simple scattering model on CPU
 	//QVector3D computeZeroScatteringLightRealtime(QVector3D orig, QVector3D dir);
 	//Paper scattering model on CPU
 	//QVector3D computeIncidentLight(QVector3D x, QVector3D v);
 	void updateS(float dtime);
-	float getRg();
+	[[nodiscard]] float getRg() const;
 
 	//Precomputation variables initialized to earth values
 	QVector3D s = QVector3D(0.0f, 0.02f, 1.0f).normalized();
@@ -34,8 +27,9 @@ public:
 	float g = 0.73f;
 	//float sunIntensity = 20.0f;
 	float sunAngularRadius = 0.0046251225f;
+	float distance = 1.001f;
 
-private:
+//private:
 	//CPU FUNCTIONS
 	//bool solveQuadratic(float a, float b, float c, float& x1, float& x2);
 	//Checks if sphere at 0,0,0 is intersected and computes t0/1 values (intersection point = orig + t0/1 * dir)
@@ -48,5 +42,4 @@ private:
 	//GPU FUNCTIONS
 
 };
-
 #endif
