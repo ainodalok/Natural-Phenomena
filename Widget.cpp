@@ -14,6 +14,8 @@ Widget::Widget(QWidget *parent) : QOpenGLWidget(parent)
 	timeStamp = dtimer->elapsed();
 	//timer for controls
 	(void)connect(timer, SIGNAL(timeout()), this, SLOT(timerFunction()));
+
+	atmosphere = new Atmosphere();
 }
 
 Widget::~Widget()
@@ -37,23 +39,29 @@ void Widget::initializeGL()
 	//if normals are >1.0, then rescale to 0.0-1.0 range, useful for dealing with normals like (1.0,1.0,1.0)
 	glEnable(GL_RESCALE_NORMAL);
 
-	quadRenderer = new QuadRenderer(width(), height());	
+	quadRenderer = new Renderer(width(), height(), atmosphere);
+	cam[1] += quadRenderer->atmosphere->Rg;
 }
 
 //called every time the widget is resized
 void Widget::resizeGL(const int w, const int h)
 {
-	//Rebind all textures 
-	if (quadRenderer != nullptr)
-	{
-		quadRenderer->rebindPrecomputedTextures();
-		quadRenderer->rebuildFramebuffer(w, h);
-	}
+	
 }
 
 //called every time the widget needs painting
 void Widget::paintGL()
 {
+	//Rebind all textures 
+	if (quadRenderer != nullptr)
+	{
+		if ((quadRenderer->width != width()) || (quadRenderer->height != height()))
+		{
+			quadRenderer->rebindPrecomputedTextures();
+			quadRenderer->rebuildFramebuffer(width(), height());
+		}
+	}
+	
 	//Time calculations
 	//Check time delta since last frame
 	dtime = dtimer->elapsed() - timeStamp;
@@ -64,28 +72,21 @@ void Widget::paintGL()
 		//rotate and move the world according to FPS view
 		if (focus)
 		{
-			//Keyboard movement logic
-			camX += velocity.x() * dtime;
-			
-			camZ += velocity.z() * dtime;
-			if (velocity.y() > 0 &&
-				quadRenderer->atmosphere->distance * velocity.y() * dtime < 1.5e8f - quadRenderer->atmosphere->distance)
-			{
-				quadRenderer->atmosphere->distance += quadRenderer->atmosphere->distance * velocity.y() * dtime;
-				camY += velocity.y() * dtime;
-			}
-			else if (velocity.y() < 0 &&
-				quadRenderer->atmosphere->distance * velocity.y() * dtime < quadRenderer->atmosphere->distance - 1.0f)
-			{
-				quadRenderer->atmosphere->distance -= quadRenderer->atmosphere->distance * abs(velocity.y()) * dtime;
-				camY += velocity.y() * dtime;
-			}
+			QVector3D camTemp;
+			const float speedMod = 100000.0f;
+			camTemp[0] = cam[0] + velocity.x() * dtime * speedMod;
+			camTemp[1] = cam[1] + velocity.y() * dtime * speedMod;
+			camTemp[2] = cam[2] + velocity.z() * dtime * speedMod;
+
+			if (camTemp.length() - quadRenderer->atmosphere->Rg > 1.5f)
+				cam = camTemp;
+			else
+				cam = camTemp.normalized() * (quadRenderer->atmosphere->Rg + 1.5f);
 		}
-		quadRenderer->atmosphere->updateS(dtime);
 		timeStamp = dtimer->elapsed();
 	}
 	
-	quadRenderer->renderAtmosphere(angleX, angleY, camX, camY, camZ);
+	quadRenderer->renderAtmosphere(angleX, angleY, cam);
 }
 
 //Enables or disables widget focus and its controls
@@ -142,6 +143,11 @@ void Widget::keyPressEvent(QKeyEvent * event)
 		sideL = true;
 	if (event->key() == Qt::Key_D)
 		sideR = true;
+	if (event->key() == Qt::Key_E)
+		sunAngleIncrease = true;
+	if (event->key() == Qt::Key_Q)
+		sunAngleDecrease = true;
+	
 }
 
 //On release bool flags are removed
@@ -159,6 +165,10 @@ void Widget::keyReleaseEvent(QKeyEvent * event)
 		sideL = false;
 	if (event->key() == Qt::Key_D)
 		sideR = false;
+	if (event->key() == Qt::Key_E)
+		sunAngleIncrease = false;
+	if (event->key() == Qt::Key_Q)
+		sunAngleDecrease = false;
 }
 
 //Depending on bool flags camera is either turned or moved
@@ -218,6 +228,11 @@ void Widget::controlTimerEvent()
 	velocity.normalize();
 
 	velocity *= speedModifier;
+
+	if (sunAngleIncrease)
+		atmosphere->updateS(0.25f);
+	if (sunAngleDecrease)
+		atmosphere->updateS(-0.25f);
 }
 
 //Sensitivity

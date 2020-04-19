@@ -6,6 +6,7 @@
 *.sln
 *.vcxproj
 *.vcxproj.filters
+*.vcxproj.DotSettings
 reportsAndIdeas/
 
 # User-specific files
@@ -353,3 +354,4 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/.qmake.stash

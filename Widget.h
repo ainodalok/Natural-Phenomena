@@ -7,7 +7,8 @@
 #include <QOpenGLWidget>
 #include <QTimer>
 
-#include "QuadRenderer.h"
+#include "Renderer.h"
+#include "Atmosphere.h" 
 
 static const float M_PIF = static_cast<float>(M_PI);
 
@@ -26,6 +27,10 @@ public:
 	void changeFocus();
 	[[nodiscard]] bool getFocus() const;
 
+	Atmosphere* atmosphere = nullptr;
+	//Effects to render
+	Renderer* quadRenderer = nullptr;
+	
 protected:
 	//called when OpenGL context is set up
 	void initializeGL() override;
@@ -57,15 +62,15 @@ private:
 	bool sideL = false;
 	bool up = false;
 	bool down = false;
+	bool sunAngleIncrease = false;
+	bool sunAngleDecrease = false;
 
 	//Camera properties
 	//Horizontal camera angle increases as camera turns right(cw rotation)
 	float angleY = 0.0f;
 	//Vertical camera angle increases as camera turns up(cw rotation)
 	float angleX = 0.0f;
-	float camX = 0.0f;
-	float camY = 1.5f;
-	float camZ = 5.0f;
+	QVector3D cam = QVector3D(0.0f, 1.5f, 0.0f);
 
 	//Velocity vector
 	QVector3D velocity = QVector3D(0.0, 0.0, 0.0);
@@ -85,9 +90,6 @@ private:
 	//Timers
 	QTimer *timer = nullptr;
 	QElapsedTimer *dtimer = nullptr;
-
-	//Effects to render
-	QuadRenderer* quadRenderer = nullptr;
 
 	//Data for old mouse position
 	QPoint oldPoint;

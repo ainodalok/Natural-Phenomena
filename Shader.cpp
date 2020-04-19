@@ -6,11 +6,11 @@ Shader::Shader(const std::string& combinedShaderPath)
 	const std::string headerCode = getStringFromFile("./Shaders/common.glsl");
 
 	const std::string shaderCode = getStringFromFile(combinedShaderPath);
-	const std::string vertexShaderCode = headerCode + "\n#define VERTEX\n" + shaderCode;
+	const std::string vertexShaderCode = "#version 460\n#define VERTEX\n" + headerCode + "\n" + shaderCode;
 	std::string geometryShaderCode = "null";
 	if (shaderCode.find("#ifdef GEOMETRY") != std::string::npos)
-		geometryShaderCode = headerCode + "\n#define GEOMETRY\n" + shaderCode;
-	const std::string fragmentShaderCode = headerCode + "\n#define FRAGMENT\n" + shaderCode;
+		geometryShaderCode = "#version 460\ndefine GEOMETRY\n" + headerCode + "\n" + shaderCode;
+	const std::string fragmentShaderCode = "#version 460\n#define FRAGMENT\n" + headerCode + "\n" + shaderCode;
 
 	ID = buildProgramFromShaderCode(vertexShaderCode, geometryShaderCode, fragmentShaderCode);
 }
@@ -20,11 +20,11 @@ Shader::Shader(const std::string& vertexShaderPath, const std::string& geometryS
 	initializeOpenGLFunctions();
 	const std::string headerCode = getStringFromFile("./Shaders/common.glsl") + "\n";
 
-	const std::string vertexShaderCode = headerCode + getStringFromFile(vertexShaderPath);
+	const std::string vertexShaderCode = "#version 460\n#define VERTEX\n" + headerCode + "\n" + getStringFromFile(vertexShaderPath);
 	std::string geometryShaderCode = "null";
 	if (geometryShaderPath != "null")
-		geometryShaderCode = headerCode + getStringFromFile(geometryShaderPath);
-	const std::string fragmentShaderCode = headerCode + getStringFromFile(fragmentShaderPath);
+		geometryShaderCode = "#version 460\n#define GEOMETRY\n" + headerCode + "\n" + getStringFromFile(geometryShaderPath);
+	const std::string fragmentShaderCode = "#version 460\n#define FRAGMENT\n" + headerCode + "\n" + getStringFromFile(fragmentShaderPath);
 
 	ID = buildProgramFromShaderCode(vertexShaderCode, geometryShaderCode, fragmentShaderCode);
 }

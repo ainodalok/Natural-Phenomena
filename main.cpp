@@ -13,10 +13,9 @@ int main(int argc, char *argv[])
 	//Disable VSync
 	format.setSwapInterval(0);
 	QSurfaceFormat::setDefaultFormat(format);
-
 	//create the application
 	QApplication app(argc, argv);
-
+	
 	//create a master widget
 	const Window *window = new Window();
 
