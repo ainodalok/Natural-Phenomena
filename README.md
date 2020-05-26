@@ -1,5 +1,6 @@
 # Natural-Phenomena
-Implementation of rendering techniques of various natural phenomena like atmospheric scattering, clouds, rainbows, sun dogs.
+Implementation of rendering techniques of natural phenomena - atmospheric scattering, clouds.
+
 WIP
 
 Dependencies:
