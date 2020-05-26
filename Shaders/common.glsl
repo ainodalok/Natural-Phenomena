@@ -8,7 +8,8 @@
 #define DELTA_E 4
 #define DELTA_SR 5
 #define DELTA_SM 6
-#define COUNT 7
+#define PERLIN_WORLEY 7
+#define COUNT 8
 
 #define PI 3.1415926538f
 
@@ -37,6 +38,7 @@ layout(binding = DELTA_SM) uniform sampler3D scatteringMDeltaTex;
 layout(binding = E) uniform sampler2D irradianceTex;
 layout(binding = DELTA_J) uniform sampler3D scatteringJDeltaTex;
 layout(binding = S) uniform sampler3D scatteringSTex;
+layout(binding = PERLIN_WORLEY) uniform sampler3D perlinWorleyTex;
 
 //Constant solar ir/-radiance, no wavelength luminance precomputation
 float solarRadiance = solarIrradiance / (PI * sunAngularRadius * sunAngularRadius);
@@ -342,6 +344,18 @@ float phaseMie(float cosTheta)
 				(8.0f * PI) * 
 			(1.0f - g * g) * (1.0 + cosTheta * cosTheta) / 
 				(pow(1.0f + g * g - 2.0f * g * cosTheta, 3.0 / 2.0) * (2.0f + g * g));
+}
+
+/////////////////////////////////CLOUDS/////////////////////////////
+
+float remap(float x, float oldMin, float oldMax, float newMin, float newMax)
+{
+    return newMin + (((x - oldMin) / (oldMax - oldMin)) * (newMax - newMin));
+}
+
+float worleyFBM(float x, float y, float z)
+{
+    return x * 0.625f + y * 0.25f + z * 0.125f;
 }
 
 #endif

@@ -20,6 +20,6 @@ layout(location = 0) out vec4 fragColor;
 
 void main()
 {
-	fragColor = vec4(vec3(texture(screenTexture, st)), 1.0);
+	fragColor = vec4(texture(screenTexture, st).xyz, 1.0);
 }
 #endif

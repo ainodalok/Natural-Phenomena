@@ -65,7 +65,6 @@ void Widget::paintGL()
 	//Time calculations
 	//Check time delta since last frame
 	dtime = dtimer->elapsed() - timeStamp;
-	
 	//Time governing
 	if (dtime > 0)
 	{
@@ -85,7 +84,6 @@ void Widget::paintGL()
 		}
 		timeStamp = dtimer->elapsed();
 	}
-	
 	quadRenderer->renderAtmosphere(angleX, angleY, cam);
 }
 
@@ -230,9 +228,9 @@ void Widget::controlTimerEvent()
 	velocity *= speedModifier;
 
 	if (sunAngleIncrease)
-		atmosphere->updateS(0.25f);
+		atmosphere->updateS(0.25f * dtime);
 	if (sunAngleDecrease)
-		atmosphere->updateS(-0.25f);
+		atmosphere->updateS(-0.25f * dtime);
 }
 
 //Sensitivity

@@ -40,7 +40,7 @@ void Window::createDockWindows()
 	outputTool->setDefaultAction(output);
 	
 	//OPTIONS
-	//Create dock widget for all sphere widgets
+	//Create dock widget for all options widgets
 	auto optionsDock = new QDockWidget(tr("Options"), this);
 	optionsDock->setFeatures(QDockWidget::DockWidgetClosable);
 	addDockWidget(Qt::LeftDockWidgetArea, optionsDock);
@@ -235,10 +235,15 @@ void Window::createDockWindows()
 	renderGroup->setLayout(renderLayout);
 	scrollLayout->addWidget(renderGroup);
 
+	QLabel* labelCloudOpacity = new QLabel("Cloud colour inscatter contribution:		", renderGroup);
+	renderLayout->addWidget(labelCloudOpacity, 0, 0, 1, 2);
+	inputCloudOpacity = new QLineEdit(QString::number(widget->atmosphere->cloudOpacity), renderGroup);
+	renderLayout->addWidget(inputCloudOpacity, 0, 2, 1, 2);
+	
 	QLabel* labelExposure = new QLabel("Exposure:                                        ", renderGroup);
-	renderLayout->addWidget(labelExposure, 0, 0, 1, 2);
+	renderLayout->addWidget(labelExposure, 1, 0, 1, 2);
 	inputExposure = new QLineEdit(QString::number(widget->atmosphere->exposure), renderGroup);
-	renderLayout->addWidget(inputExposure, 0, 2, 1, 2);
+	renderLayout->addWidget(inputExposure, 1, 2, 1, 2);
 
 	QLabel* labelWhitePoint = new QLabel("White point:", renderGroup);
 	QLabel* labelWhitePointR = new QLabel("R:", renderGroup);
@@ -247,21 +252,21 @@ void Window::createDockWindows()
 	inputWhitePointG = new QLineEdit(QString::number(widget->atmosphere->whitePoint.y()), renderGroup);
 	QLabel* labelWhitePointB = new QLabel("B:", renderGroup);
 	inputWhitePointB = new QLineEdit(QString::number(widget->atmosphere->whitePoint.z()), renderGroup);
-	renderLayout->addWidget(labelWhitePoint, 1, 0, 1, 4);
-	renderLayout->addWidget(labelWhitePointR, 2, 0, 1, 1, Qt::AlignJustify);
-	renderLayout->addWidget(labelWhitePointG, 3, 0, 1, 1, Qt::AlignJustify);
-	renderLayout->addWidget(labelWhitePointB, 4, 0, 1, 1, Qt::AlignJustify);
-	renderLayout->addWidget(inputWhitePointR, 2, 1, 1, 2);
-	renderLayout->addWidget(inputWhitePointG, 3, 1, 1, 2);
-	renderLayout->addWidget(inputWhitePointB, 4, 1, 1, 2);
+	renderLayout->addWidget(labelWhitePoint, 2, 0, 1, 4);
+	renderLayout->addWidget(labelWhitePointR, 3, 0, 1, 1, Qt::AlignJustify);
+	renderLayout->addWidget(labelWhitePointG, 4, 0, 1, 1, Qt::AlignJustify);
+	renderLayout->addWidget(labelWhitePointB, 5, 0, 1, 1, Qt::AlignJustify);
+	renderLayout->addWidget(inputWhitePointR, 3, 1, 1, 2);
+	renderLayout->addWidget(inputWhitePointG, 4, 1, 1, 2);
+	renderLayout->addWidget(inputWhitePointB, 5, 1, 1, 2);
 
 	QLabel* gammaFormula = new QLabel("Gamma formula:\n1 - exp(-colour * exposure / whitePoint)^(1 / 2.2)", renderGroup);
-	renderLayout->addWidget(gammaFormula, 5, 0, 1, 0, Qt::AlignJustify);
+	renderLayout->addWidget(gammaFormula, 6, 0, 1, 0, Qt::AlignJustify);
 
 	QPushButton* apply = new QPushButton(tr("Apply"), scrollWidget);
 	apply->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 	apply->setStyleSheet("QPushButton { font-size: 11pt; }");
-	renderLayout->addWidget(apply, 6, 0, 1, 0, Qt::AlignJustify);
+	renderLayout->addWidget(apply, 7, 0, 1, 0, Qt::AlignJustify);
 	connect(apply, &QPushButton::released, this, &Window::apply);
 	
 	scrollArea->widget()->adjustSize();
@@ -354,4 +359,5 @@ void Window::apply()
 	widget->atmosphere->whitePoint.setX(inputWhitePointR->text().toFloat());
 	widget->atmosphere->whitePoint.setY(inputWhitePointG->text().toFloat());
 	widget->atmosphere->whitePoint.setZ(inputWhitePointB->text().toFloat());
+	widget->atmosphere->cloudOpacity = std::min(std::max(inputCloudOpacity->text().toFloat(), 0.0f) ,10.0f);
 }

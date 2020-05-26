@@ -74,6 +74,7 @@ QLineEdit* inputT_W = nullptr;
 	QLineEdit* inputSurfaceAlbedoB = nullptr;
 	QLineEdit* inputMieG = nullptr;
 
+	QLineEdit* inputCloudOpacity = nullptr;
 	QLineEdit* inputExposure = nullptr;
 	QLineEdit* inputWhitePointR = nullptr;
 	QLineEdit* inputWhitePointG = nullptr;

@@ -45,7 +45,12 @@ public:
 	int MU_NU = 8;
 	int ORDER_COUNT = 4;
 
+	int CLOUD_W = 1280;
+	int CLOUD_H = 1280;
+	int CLOUD_D = 128;
+
 	float exposure = 10.0f;
+	float cloudOpacity = 1.0f;
 	QVector3D whitePoint = QVector3D(2.8f, 2.175f, 1.875f);
 };
 #endif

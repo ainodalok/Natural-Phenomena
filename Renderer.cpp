@@ -21,6 +21,8 @@ Renderer::Renderer(const int width, const int height, Atmosphere* const atmosphe
 	setup3DShader(secondStepMultipleScatteringShader, "Shaders/secondStepMultipleScatteringFS.glsl");
 	setup2DShader(copyIrradianceShader, "Shaders/copyIrradianceFS.glsl");
 	setup3DShader(copyMultipleScatteringShader, "Shaders/copyMultipleScatteringFS.glsl");
+
+	setup3DShader(cloudNoiseShader, "Shaders/cloudNoiseFS.glsl");
 	
 	//Setup planet render shader
 	planetShader = new Shader("Shaders/planet.glsl");
@@ -51,6 +53,7 @@ Renderer::~Renderer()
 	delete secondStepMultipleScatteringShader;
 	delete copyIrradianceShader;
 	delete copyMultipleScatteringShader;
+	delete cloudNoiseShader;
 }
 
 //returns current aspect ratio based on current window
@@ -86,7 +89,11 @@ void Renderer::precompute()
 		glFinish();
 		LogWindow::getInstance()->appendMessage(QString::fromStdString("Scattering order " + std::to_string(order + 1) + "/" + std::to_string(atmosphere->ORDER_COUNT) + " precomputed!"));
 	}
-
+	precomputeCloudNoise();
+	glFinish();
+	GLenum err;
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("Noise precomputed!"));
+	
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 }
 
@@ -172,7 +179,7 @@ void Renderer::precomputeDeltaS(int order)
 void Renderer::copyIrradiance()
 {
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureIDs[E], 0);
-	glViewport(0, 0, atmosphere->MU_MU_S * atmosphere->MU_NU, atmosphere->MU_MU);
+	glViewport(0, 0, atmosphere->E_W, atmosphere->E_H);
 	copyIrradianceShader->use();
 	setCommonUniforms();
 
@@ -191,6 +198,19 @@ void Renderer::copyScattering(int order)
 	setCommonUniforms();
 
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 3, atmosphere->MU_R);
+}
+
+void Renderer::precomputeCloudNoise()
+{
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureIDs[PERLIN_WORLEY], 0);
+	glViewport(0, 0, atmosphere->CLOUD_W, atmosphere->CLOUD_H);
+	cloudNoiseShader->use();
+	setCommonUniforms();
+	glUniform1i(14, atmosphere->CLOUD_W);
+	glUniform1i(15, atmosphere->CLOUD_H);
+	glUniform1i(16, atmosphere->CLOUD_D);
+
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 3, atmosphere->CLOUD_D);
 }
 
 void Renderer::renderAtmosphere(const float angleX, const float angleY, QVector3D& cam)
@@ -215,6 +235,7 @@ void Renderer::renderAtmosphere(const float angleX, const float angleY, QVector3
 	glUniform3fv(22, 1, &atmosphere->mBeta[0]);
 	glUniform1f(23, atmosphere->exposure);
 	glUniform3fv(24, 1, &atmosphere->whitePoint[0]);
+	glUniform1f(25, atmosphere->cloudOpacity * 10.0f);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glEnable(GL_DEPTH_TEST);
 	
@@ -229,7 +250,7 @@ void Renderer::rebindPrecomputedTextures()
 	for (int textureType : PrecomputedTextures)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureType);
-		if (textureType == T || textureType == E || textureType == DELTA_E)
+		if (textureType != S && textureType != PERLIN_WORLEY)
 			glBindTexture(GL_TEXTURE_2D, textureIDs[textureType]);
 		else
 			glBindTexture(GL_TEXTURE_3D, textureIDs[textureType]);
@@ -331,7 +352,7 @@ void Renderer::allocateTextures()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, atmosphere->MU_MU_S * atmosphere->MU_NU, atmosphere->MU_MU, atmosphere->MU_R, 0, GL_RGB, GL_FLOAT, nullptr);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, atmosphere->MU_MU_S * atmosphere->MU_NU, atmosphere->MU_MU, atmosphere->MU_R, 0, GL_RGBA, GL_FLOAT, nullptr);
 
 	glActiveTexture(GL_TEXTURE0 + DELTA_J);
 	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
@@ -379,6 +400,18 @@ void Renderer::allocateTextures()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, atmosphere->MU_MU_S * atmosphere->MU_NU, atmosphere->MU_MU, atmosphere->MU_R, 0, GL_RGB, GL_FLOAT, nullptr);
+
+	glActiveTexture(GL_TEXTURE0 + PERLIN_WORLEY);
+	//Each row must be aligned to 1-4 bytes, 1 means no alignment!
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &textureIDs[PERLIN_WORLEY]);
+	glBindTexture(GL_TEXTURE_3D, textureIDs[PERLIN_WORLEY]);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R16F, atmosphere->CLOUD_W, atmosphere->CLOUD_H, atmosphere->CLOUD_D, 0, GL_RED, GL_FLOAT, nullptr);
 }
 
 void Renderer::deletePrecomputedTextures()
