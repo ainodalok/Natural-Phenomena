@@ -25,7 +25,8 @@ void main()
 {
 	st = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
 	gl_Position = vec4(st * 2.0f + -1.0f, -1.0f, 1.0f);
-	ray = viewMatrix * vec3(gl_Position.x * tan(radians(fov_x) / 2.0f), gl_Position.y * tan(radians(fov_x) / 2.0f) / (width/ height), gl_Position.z);
+	float aspect = tan(radians(fov_x) / 2.0f);
+	ray = viewMatrix * vec3(gl_Position.x * aspect, gl_Position.y * aspect * (height/ width), gl_Position.z);
 }
 #endif
 
@@ -36,11 +37,11 @@ layout(location = 1) in vec2 st;
 layout(location = 0) out vec4 colour;
 
 //L0
-float directSunlight(vec3 nu)
+float directSunlight(float nu)
 {
-	if (dot(nu, s) > cos(sunAngularRadius))
+	if (nu > cos(sunAngularRadius))
 		return //Smooth out the edges of the solar disc
-			(dot(nu, s) - cos(sunAngularRadius)) / (1.0f - cos(sunAngularRadius)) *
+			(nu - cos(sunAngularRadius)) / (1.0f - cos(sunAngularRadius)) *
 			//1.5 / (3.141... constant solar radiance, not physically accurate but does job better than old implementation
 			solarRadiance;
 	else
@@ -145,56 +146,48 @@ bool intersectsCloudLayer(bool intersectsGround, float r, float mu, out float di
 	return false;
 }
 
-float cloudIntegral(vec3 xCamera, vec3 fragRay, float distanceToLayer, float distanceInsideLayer)
+float cloudIntegral(vec3 xCamera, vec3 fragRay, float distanceToLayer, float distanceInsideLayer, float cameraOpacity)
 {
-	float cameraOpacity = clamp((1.0f - (length(xCamera) - bottomLayer) / (topLayer - bottomLayer)) * 2, 0.0f, 1.0f);
-	if (cameraOpacity > 0.01f)
+	vec3 xStart = xCamera + fragRay * distanceToLayer;
+
+	int steps = 200;
+	float densityMultiplier = 0.0004f;
+	//2k to 12k height - 0.00008f x1, good results at 0.00002f
+	float cloudFrequency = 0.00001f;
+
+	float detailFrequency = 0.0002f;
+
+	float cutOffDensity = 4.605f / densityMultiplier;
+	float stepSize = distanceInsideLayer / steps;
+
+	float distanceTravelled = 0.0f;
+	float cloudDensity = 0.0f;
+
+	for (int i = 0; i <= steps; i++)
 	{
-		vec3 xStart = xCamera + fragRay * distanceToLayer;
+		vec3 position = xStart + distanceTravelled * fragRay;
+		float gradient = clamp((1.0f - (length(position) - bottomLayer) / (topLayer - bottomLayer)) * 2, 0.0f, 1.0f);
 
-		int steps = 200;
-		float densityMultiplier = 0.0004f;
-		//2k to 12k height - 0.00008f x1, good results at 0.00002f
-		float cloudFrequency = 0.00001f;
-
-		float coverageFrequency = 6.0f;
-
-		float detailFrequency = 0.0002f;
-
-		float cutOffDensity = 4.605f / densityMultiplier;
-		float stepSize = distanceInsideLayer / steps;
-
-		float distanceTravelled = 0.0f;
-		float cloudDensity = 0.0f;
-
-		for (int i = 0; i <= steps; i++)
-		{
-			vec3 position = xStart + distanceTravelled * fragRay;
-			float gradient = clamp((1.0f - (length(position) - bottomLayer) / (topLayer - bottomLayer)) * 2, 0.0f, 1.0f);
-
-			float perlinWorley = texture(perlinWorleyTex, vec3(position.zxy * cloudFrequency)).x * gradient;
-			//Local coverage
-			float cloudDensityD = clamp(remap(perlinWorley, 0.60f, 1.0f, 0.0f, 1.0f), 0.0f, 1.0f);
+		float perlinWorley = texture(perlinWorleyTex, vec3(position.zxy * cloudFrequency)).x * gradient;
+		//Local coverage
+		float cloudDensityD = clamp(remap(perlinWorley, 0.60f, 1.0f, 0.0f, 1.0f), 0.0f, 1.0f);
 			
-			//Adding detail if there is something to add to
-			if (cloudDensityD > 0.0f)
-				cloudDensityD = max(cloudDensityD - (1.0f - texture(perlinWorleyTex, vec3(position.zxy * detailFrequency + 0.6f)).x) * (1.0 - cloudDensityD) * 0.3, 0.0f);
+		//Adding detail if there is something to add to
+		if (cloudDensityD > 0.0f)
+			cloudDensityD = max(cloudDensityD - (1.0f - texture(perlinWorleyTex, vec3(position.zxy * detailFrequency + 0.6f)).x) * (1.0 - cloudDensityD) * 0.3, 0.0f);
 
-			cloudDensityD *= stepSize * gradient * cameraOpacity;
+		cloudDensityD *= stepSize * gradient * cameraOpacity;
 
-			if (i == 0 || i == steps)
-				cloudDensityD *= 0.5f;
+		if (i == 0 || i == steps)
+			cloudDensityD *= 0.5f;
 
-			cloudDensity += cloudDensityD;
-			if (cloudDensity >= cutOffDensity)
-				return exp((-cloudDensity * densityMultiplier));
+		cloudDensity += cloudDensityD;
+		if (cloudDensity >= cutOffDensity)
+			return exp((-cloudDensity * densityMultiplier));
 
-			distanceTravelled += stepSize;
-		}
-		return exp(-cloudDensity * densityMultiplier);
+		distanceTravelled += stepSize;
 	}
-	else
-		return 1.0f;
+	return exp(-cloudDensity * densityMultiplier);
 }
 
 void main()
@@ -238,8 +231,8 @@ void main()
 
 		vec4 mixedInscattering = getInterpolatedInscattering(r, mu, muS, nu, intersectsGround, scatteringSTex);
 		vec3 singleMie = extrapolateMie(mixedInscattering);	
+		vec3 inscatter= max(mixedInscattering.rgb * phaseRay(nu) + singleMie * phaseMie(nu), 0.0f);
 
-		vec3 inscatter;
 		vec3 transmittance;
 
 		if ((d >= 0) && (mu < 0.0))	//Looking at the ground
@@ -256,41 +249,40 @@ void main()
 				//float RMu0 = r0 * mu0;
 				//inscatterR -= getInterpolatedInscattering(r0, mu0, muS, nu, intersectsGround, scatteringRDeltaTex).rgb * transmittance;
 				//inscatterM -= getInterpolatedInscattering(r0, mu0, muS, nu, intersectsGround, scatteringMDeltaTex).rgb * transmittance;
-			inscatter = max(mixedInscattering.rgb * phaseRay(nu) + singleMie * phaseMie(nu), 0.0f);
+			//inscatter = max(mixedInscattering.rgb * phaseRay(nu) + singleMie * phaseMie(nu), 0.0f);
 			result = transmittance * surfaceAlbedo / PI * groundLight(xBound, fragRay, d) + inscatter;
 		} 
 		else	//Looking at the sky
 		{
 			d = -RMu + sqrt(RMu * RMu - r * r + Rt * Rt);
-			inscatter = max(mixedInscattering.rgb * phaseRay(nu) + singleMie * phaseMie(nu), 0.0f);
+			//inscatter = max(mixedInscattering.rgb * phaseRay(nu) + singleMie * phaseMie(nu), 0.0f);
 			transmittance = getTransmittance(r, mu, d, intersectsGround);
 
 			//colour = vec4(getTransmittance(r, mu, d, intersectsGround) * vec3(directSunlight(fragRay)) + inscatter, 1.0f);
-			result = transmittance * vec3(directSunlight(fragRay)) + inscatter;
+			result = transmittance * vec3(directSunlight(nu)) + inscatter;
 		}
 
 		float distanceInsideLayer;
 		float distanceToLayer;
-		bool intersectsCloudLayer = intersectsCloudLayer(intersectsGround, r, mu, distanceToLayer, distanceInsideLayer);
-		if (cloudOpacity > 0.1f)
+		//UI parameter control
+		if (cloudOpacity > 1.0f)
 		{
-			if (intersectsCloudLayer)
+			//Altitude control
+			float cameraOpacity = clamp((1.0f - (r - bottomLayer) / (topLayer - bottomLayer)) * 2, 0.0f, 1.0f);
+			if (cameraOpacity > 0.01f)
 			{
-				float cloudTransmittance = cloudIntegral(vec3(xBound.x, xBound.y, xBound.z), fragRay, distanceToLayer, distanceInsideLayer);
-				float lengthInscatter;
-				vec3 normalizedInscatter;
-				if (cloudTransmittance > 0.01f)
+				bool intersectsCloudLayer = intersectsCloudLayer(intersectsGround, r, mu, distanceToLayer, distanceInsideLayer);
+				if (intersectsCloudLayer)
 				{
-					lengthInscatter = length(inscatter);
-					normalizedInscatter = inscatter / lengthInscatter;
+					float cloudTransmittance = cloudIntegral(xBound, fragRay, distanceToLayer, distanceInsideLayer, cameraOpacity);
+					result = result * cloudTransmittance + (1.0f - cloudTransmittance) * inscatter * cloudOpacity;
+					//result = vec3(cloudTransmittance);
 				}
-				result = result * cloudTransmittance + (1.0f - cloudTransmittance) * normalizedInscatter * lengthInscatter * cloudOpacity;
-				//result = vec3(cloudTransmittance);
 			}
 		}
 	}
 	else	//Could possibly see only sun while not looking into atmosphere
-		result = vec3(directSunlight(fragRay)); //Ideal transmittance
+		result = vec3(directSunlight(nu)); //Ideal transmittance
 
 	colour = exponentialToneMappingWithBakedInGamma(vec4(result, 1.0f));
 	

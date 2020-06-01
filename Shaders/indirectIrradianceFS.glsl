@@ -27,6 +27,7 @@ void main()
 			vec3 irradiance = getInterpolatedInscattering(RMuS.x, cos(phi), RMuS.y, nu, false, scatteringRDeltaTex).rgb;
 			if (order == 1)
                 irradiance = irradiance * phaseRay(nu) + getInterpolatedInscattering(RMuS.x, cos(phi), RMuS.y, nu, false, scatteringMDeltaTex).rgb * phaseMie(nu);
+			//Spherical coordinates integration, account for d
 			colour += irradiance * cos(phi) * dOmega;
 		}
 	}

@@ -114,9 +114,7 @@ float worley(vec3 p, float freq)
                 vec3 neighborCell = vec3(x, y, z);
                 vec3 cell = flooredST + neighborCell;
 
-                cell.x = mod(freq + cell.x, freq);
-                cell.y = mod(freq + cell.y, freq);
-                cell.z = mod(freq + cell.z, freq);
+                cell = mod(freq + cell, freq);
 
                 vec3 point = hash(cell);
                 vec3 vectorBetween = neighborCell + point - fractionST;
@@ -146,8 +144,8 @@ void main()
     float lowFreqPerlinFBM = perlinFBM(stp, 4.0f, 7);
     //Different shape, not as described in GPU Pro 7 book, using low frequency Worley FBM as old low makes shapes wispy instead of billowy
     perlin_worley = remap(lowFreqPerlinFBM, 0.0f, 1.0f, lowFreqWorleyFBM, 1.0f);
-    //Add wispy details
-    perlin_worley = remap(perlin_worley, worleyFBM(lowFreqWorleyFBM, medFreqWorleyFBM, highFreqWorleyFBM) - 1.0f, 1.0f, 0.0f, 1.0f);
+    //Add shape details
+    perlin_worley = remap(perlin_worley, -(worleyFBM(lowFreqWorleyFBM, medFreqWorleyFBM, highFreqWorleyFBM) - 1.0f), 1.0f, 0.0f, 1.0f);
     //Normalize
-    perlin_worley = clamp(remap(perlin_worley, 0.4f, 1.0f, 0.0f, 1.0f), 0.0f, 1.0f);
+    perlin_worley = clamp(remap(perlin_worley, -0.6f, 1.0f, 0.0f, 1.0f), 0.0f, 1.0f);
 }

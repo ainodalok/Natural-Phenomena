@@ -189,7 +189,7 @@ vec4 getInscatteringRMuMuSNuFromSTLayer(out bool intersectsGround, out float d)
 		float dmin = r - Rg;
 		float dmax = rho;
 		//Two parts of the texture are considered as separate texture, hence MU_MU mapping for each half is normalized
-		float aP = (MU_MU - 2.0f * gl_FragCoord.y - 1.0f) / (MU_MU - 2.0f);
+		float aP = (0.5 * MU_MU - gl_FragCoord.y - 0.5f) / (0.5 * MU_MU - 1.0f);
 		d = dmin + (dmax - dmin) * aP;
 		//Looking straight down
 		if (d == 0.0f)
@@ -206,7 +206,7 @@ vec4 getInscatteringRMuMuSNuFromSTLayer(out bool intersectsGround, out float d)
 		float dmin  = Rt - r;
 		float dmax = rho + H;
 		//Two parts of the texture are considered as separate texture, hence MU_MU mapping for each half is normalized
-		float aP = (2.0f * gl_FragCoord.y - MU_MU - 1.0f) / (MU_MU - 2.0f);
+		float aP = (gl_FragCoord.y - 0.5 * MU_MU - 0.5f) / (0.5 * MU_MU - 1.0f);
 		d = dmin + (dmax - dmin) * aP;
 		//Looking straight up
 		if (d == 0.0f)
