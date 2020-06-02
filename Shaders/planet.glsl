@@ -256,7 +256,7 @@ void main()
 		{
 			d = -RMu + sqrt(RMu * RMu - r * r + Rt * Rt);
 			//inscatter = max(mixedInscattering.rgb * phaseRay(nu) + singleMie * phaseMie(nu), 0.0f);
-			transmittance = getTransmittance(r, mu, d, intersectsGround);
+			transmittance = getTransmittanceToSun(r, mu);
 
 			//colour = vec4(getTransmittance(r, mu, d, intersectsGround) * vec3(directSunlight(fragRay)) + inscatter, 1.0f);
 			result = transmittance * vec3(directSunlight(nu)) + inscatter;

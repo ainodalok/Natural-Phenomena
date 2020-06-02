@@ -45,8 +45,8 @@ public:
 	int MU_NU = 8;
 	int ORDER_COUNT = 4;
 
-	int CLOUD_W = 1280;
-	int CLOUD_H = 1280;
+	int CLOUD_W = 128;
+	int CLOUD_H = 128;
 	int CLOUD_D = 128;
 
 	float exposure = 10.0f;

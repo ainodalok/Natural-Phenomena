@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+#include <QElapsedTimer>
+
 Renderer::Renderer(const int width, const int height, Atmosphere* const atmosphere)
 {
 	initializeOpenGLFunctions();
@@ -66,33 +68,56 @@ void Renderer::precompute()
 {
 	//Depth buffer is not needed when doing precomputations
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
-
+	QElapsedTimer timer;
+	QElapsedTimer overall;
+	overall.start();
+	timer.start();
 	precomputeT();
+	glFinish();
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("Transmittance - " + std::to_string(timer.restart())));
 	precomputeDeltaE(0);
+	glFinish();
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaE - " + std::to_string(timer.restart())));
 	precomputeDeltaS(0);
+	glFinish();
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaS - " + std::to_string(timer.restart())));
 	//0th order irradiance delta is then not copied into irradiance accumulation texture, since it is calculated real-time
 	copyScattering(0);
 	glFinish();
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("Scattering order 1/" + std::to_string(atmosphere->ORDER_COUNT) + " precomputed!"));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("S copy - " + std::to_string(timer.restart())));
+	//LogWindow::getInstance()->appendMessage(QString::fromStdString("Scattering order 1/" + std::to_string(atmosphere->ORDER_COUNT) + " precomputed!"));
+	
 	for (int order = 1; order < atmosphere->ORDER_COUNT; order++)
 	{
 		precomputeDeltaJ(order);
+		glFinish();
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaJ" + std::to_string(order) + " - " + std::to_string(timer.restart())));
 		precomputeDeltaE(order);
+		glFinish();
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaE" + std::to_string(order) + " - " + std::to_string(timer.restart())));
 		precomputeDeltaS(order);
+		glFinish();
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaS" + std::to_string(order) + " - " + std::to_string(timer.restart())));
 
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_ONE, GL_ONE);
 		copyIrradiance();
+		glFinish();
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("E copy - " + std::to_string(timer.restart())));
 		copyScattering(order);
+		glFinish();
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("S copy" + std::to_string(order) + " - " + std::to_string(timer.restart())));
 		glDisable(GL_BLEND);
 		glFinish();
-		LogWindow::getInstance()->appendMessage(QString::fromStdString("Scattering order " + std::to_string(order + 1) + "/" + std::to_string(atmosphere->ORDER_COUNT) + " precomputed!"));
+		//LogWindow::getInstance()->appendMessage(QString::fromStdString("Scattering order " + std::to_string(order + 1) + "/" + std::to_string(atmosphere->ORDER_COUNT) + " precomputed!"));
 	}
 	precomputeCloudNoise();
 	glFinish();
-	GLenum err;
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("Noise precomputed!"));
+	//LogWindow::getInstance()->appendMessage(QString::fromStdString("Noise precomputed!"));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("Noise - " + std::to_string(timer.restart())));
+	
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("Overall - " + std::to_string(overall.restart())));
 	
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 }

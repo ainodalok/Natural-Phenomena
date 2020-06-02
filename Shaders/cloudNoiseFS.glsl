@@ -147,5 +147,5 @@ void main()
     //Add shape details
     perlin_worley = remap(perlin_worley, -(worleyFBM(lowFreqWorleyFBM, medFreqWorleyFBM, highFreqWorleyFBM) - 1.0f), 1.0f, 0.0f, 1.0f);
     //Normalize
-    perlin_worley = clamp(remap(perlin_worley, -0.6f, 1.0f, 0.0f, 1.0f), 0.0f, 1.0f);
+    perlin_worley = clamp(remap(perlin_worley, -0.9f, 1.0f, 0.0f, 1.0f), 0.0f, 1.0f);
 }
