@@ -74,40 +74,41 @@ void Renderer::precompute()
 	timer.start();
 	precomputeT();
 	glFinish();
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("Transmittance - " + std::to_string(timer.restart())));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("Transmittance - " + std::to_string(timer.restart()) + " ms"));
 	precomputeDeltaE(0);
 	glFinish();
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaE - " + std::to_string(timer.restart())));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaE - " + std::to_string(timer.restart()) + " ms"));
 	precomputeDeltaS(0);
 	glFinish();
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaS - " + std::to_string(timer.restart())));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaS - " + std::to_string(timer.restart()) + " ms"));
 	//0th order irradiance delta is then not copied into irradiance accumulation texture, since it is calculated real-time
 	copyScattering(0);
 	glFinish();
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("S copy - " + std::to_string(timer.restart())));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("S copy - " + std::to_string(timer.restart()) + " ms"));
 	//LogWindow::getInstance()->appendMessage(QString::fromStdString("Scattering order 1/" + std::to_string(atmosphere->ORDER_COUNT) + " precomputed!"));
 	
 	for (int order = 1; order < atmosphere->ORDER_COUNT; order++)
 	{
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("\nOrder of multiple scattering - " + std::to_string(order)));
 		precomputeDeltaJ(order);
 		glFinish();
-		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaJ" + std::to_string(order) + " - " + std::to_string(timer.restart())));
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaJ - " + std::to_string(timer.restart()) + " ms"));
 		precomputeDeltaE(order);
 		glFinish();
-		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaE" + std::to_string(order) + " - " + std::to_string(timer.restart())));
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaE - " + std::to_string(timer.restart()) + " ms"));
 		precomputeDeltaS(order);
 		glFinish();
-		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaS" + std::to_string(order) + " - " + std::to_string(timer.restart())));
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("DeltaS - " + std::to_string(timer.restart()) + " ms"));
 
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_ONE, GL_ONE);
 		copyIrradiance();
 		glFinish();
-		LogWindow::getInstance()->appendMessage(QString::fromStdString("E copy - " + std::to_string(timer.restart())));
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("E copy - " + std::to_string(timer.restart()) + " ms"));
 		copyScattering(order);
 		glFinish();
-		LogWindow::getInstance()->appendMessage(QString::fromStdString("S copy" + std::to_string(order) + " - " + std::to_string(timer.restart())));
+		LogWindow::getInstance()->appendMessage(QString::fromStdString("S copy - " + std::to_string(timer.restart()) + " ms"));
 		glDisable(GL_BLEND);
 		glFinish();
 		//LogWindow::getInstance()->appendMessage(QString::fromStdString("Scattering order " + std::to_string(order + 1) + "/" + std::to_string(atmosphere->ORDER_COUNT) + " precomputed!"));
@@ -115,9 +116,9 @@ void Renderer::precompute()
 	precomputeCloudNoise();
 	glFinish();
 	//LogWindow::getInstance()->appendMessage(QString::fromStdString("Noise precomputed!"));
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("Noise - " + std::to_string(timer.restart())));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("Noise - " + std::to_string(timer.restart()) + " ms"));
 	
-	LogWindow::getInstance()->appendMessage(QString::fromStdString("Overall - " + std::to_string(overall.restart())));
+	LogWindow::getInstance()->appendMessage(QString::fromStdString("Overall - " + std::to_string(overall.restart()) + " ms"));
 	
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 }
