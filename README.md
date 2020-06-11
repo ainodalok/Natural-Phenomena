@@ -7,4 +7,18 @@ Implementation of natural phenomena rendering techniques:
 Dependencies:
 - Qt 5.13.0 - Core, OpenGL, Widgets, GUI
 - GLU
-- OpenGL
+- OpenGL<br/>
+
+In action:
+
+![Volumetric clouds](Screenshots/VolumetricClouds.gif "Volumetric clouds")
+![Sunset with bigger sun and irradiance](Screenshots/SunsetWithBiggerSun.png "Sunset with bigger sun and irradiance")
+![Sunset sky](Screenshots/Sunset.png "Sunset sky")
+![Inscattering light contribution to clouds](Screenshots/SunCloudLightContribution.png "Inscattering light contribution to clouds")
+![Sun beyond the horizon with multiple scattering contribution](Screenshots/SunBeyondHorizonMultipleScattering.png "Sun beyond the horizon with multiple scattering contribution")
+![Partially lit planet](Screenshots/PartiallyLit.png "Partially lit planet")
+![Outside atmosphere](Screenshots/OutsideAtmosphere.png "Outside atmosphere")
+![Mie contribution](Screenshots/MieAndHorizon.png "Mie contribution")
+![High altitude low sun angle](Screenshots/HighAltitude.png "High altitude low sun angle")
+![Sun beyond the horizon at big distance](Screenshots/BigDistance.png "Sun beyond the horizon at big distance")
+![Alien skies with randomized scattering factor](Screenshots/AlienSkiesRandomizedScatteringFactor.png "Alien skies with randomized scattering factor")
