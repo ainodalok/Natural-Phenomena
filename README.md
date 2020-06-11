@@ -11,6 +11,7 @@ Dependencies:
 
 In action:
 
+(Volumetric clouds gif is better rendererd in chromium based browsers)
 ![Volumetric clouds](Screenshots/VolumetricClouds.gif "Volumetric clouds")
 ![Sunset with bigger sun and irradiance](Screenshots/SunsetWithBiggerSun.png "Sunset with bigger sun and irradiance")
 ![Sunset sky](Screenshots/Sunset.png "Sunset sky")
