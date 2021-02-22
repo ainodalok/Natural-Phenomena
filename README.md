@@ -9,6 +9,10 @@ Dependencies:
 - GLU
 - OpenGL<br/>
 
+<embed src="https://raw.githubusercontent.com/ainodalok/Natural-Phenomena/master/sc15azNaturalPhenomena.pdf" width="700px" height="700px">
+  <p><a href="http://yoursite.com/the.pdf">Project's report.</a></p>
+</embed>
+
 In action:
 
 (Volumetric clouds gif is better rendererd in chromium based browsers)
